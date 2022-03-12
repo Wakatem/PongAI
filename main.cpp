@@ -9,9 +9,13 @@
 #include <SFML/Audio/Music.hpp>
 #include <thread>
 #include <chrono>
+#include <vector>
+#include <iostream>
 
 using std::thread;
 using std::string;
+using std::vector;
+
 
 
 int score;
@@ -101,8 +105,13 @@ void setScreenText(RenderWindow& window, int& scoreTarget)
 
 int main()
 {
-	VideoMode vm = vm.getFullscreenModes()[2];
-	RenderWindow window(vm, "Pong Game", Style::None);
+	vector<VideoMode> modes = VideoMode::getFullscreenModes();
+	int i = 0;
+	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
+
+	VideoMode vm = vm.getFullscreenModes()[i];
+	RenderWindow window(vm, "Pong Game", Style::Fullscreen);
+
 	Clock clock;
 	Music bgMusic;
 	int scoreTarget = 10000;
