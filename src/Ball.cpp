@@ -1,5 +1,5 @@
 
-#include "Ball.h"
+#include "..\headers\Ball.h"
 #include <iostream>
 using sf::Music;
 
@@ -12,7 +12,7 @@ Ball::Ball(float startX, float startY) {
 	circle.setOutlineThickness(5);
 	circle.setPosition(c_position);
 	soundEffect = new Music();
-	soundEffect->openFromFile("hitSound.wav");
+	soundEffect->openFromFile(".\\resources\\hitSound.wav");
 	soundEffect->setVolume(85);
 }
 
@@ -143,9 +143,9 @@ void Ball::move(Time dt)
 int Ball::update(Time dt, RenderWindow& window, Bat bat)
 {
 
-	circle.setPosition(c_position);
 	checkSides(dt, window, bat);
 	move(dt);
+	circle.setPosition(c_position);
 
 	// if ball hits the bottom wall
 	if (collisionStatus == -1)

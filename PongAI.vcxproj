@@ -19,17 +19,24 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ball.cpp" />
-    <ClCompile Include="Bat.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\Ball.cpp" />
+    <ClCompile Include="src\Bat.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
-    <ClInclude Include="Bat.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="headers\Ball.h" />
+    <ClInclude Include="headers\Bat.h" />
+    <ClInclude Include="headers\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="resources\background_music.wav" />
+    <Media Include="resources\hitSound.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\game_over.ttf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

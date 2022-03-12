@@ -1,6 +1,6 @@
 
-#include "Bat.h"
-#include "Ball.h"
+#include "..\headers\Bat.h"
+#include "..\headers\Ball.h"
 #include <sstream>
 #include <cstdlib>
 #include <string>
@@ -110,12 +110,12 @@ int main()
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	RenderWindow window(vm, "Pong Game", Style::Fullscreen);
+	RenderWindow window(vm, "Pong Game", Style::None);
 
 	Clock clock;
 	Music bgMusic;
 	int scoreTarget = 10000;
-	bgMusic.openFromFile("background_music.wav");
+	bgMusic.openFromFile(".\\resources\\background_music.wav");
 	bgMusic.setLoop(true);
 	bgMusic.setVolume(30);
 	bgMusic.play();
@@ -124,13 +124,12 @@ int main()
 	//create and initialize
 	Bat bat(window.getSize().x / 2, window.getSize().y - 80);
 	Ball ball(window.getSize().x / 2, 10);
-	font.loadFromFile("game_over.ttf");
+	font.loadFromFile(".\\resources\\game_over.ttf");
 	lives = 5;
 	score = 0;
 	addScore = false;
 
 	setScreenText(window, scoreTarget);
-
 	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
 
 
