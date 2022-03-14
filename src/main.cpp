@@ -1,4 +1,3 @@
-
 #include "..\headers\Bat.h"
 #include "..\headers\Ball.h"
 #include <sstream>
