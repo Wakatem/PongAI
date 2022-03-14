@@ -11,11 +11,13 @@
 #include <chrono>
 #include <vector>
 #include <iostream>
+#include <pybind11/embed.h>
 
 using std::thread;
 using std::string;
 using std::vector;
 
+namespace py = pybind11;
 
 
 int score;
@@ -105,6 +107,9 @@ void setScreenText(RenderWindow& window, int& scoreTarget)
 
 int main()
 {
+	py::scoped_interpreter guard{};
+	py::print("Hello, World!");
+
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
 	int i = 0;
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
