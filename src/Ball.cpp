@@ -4,6 +4,8 @@
 using sf::Music;
 
 
+Ball::Ball(){}
+
 Ball::Ball(float startX, float startY) {
 	c_position.x = startX;
 	c_position.y = startY;

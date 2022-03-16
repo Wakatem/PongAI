@@ -15,17 +15,27 @@
 using std::thread;
 using std::string;
 using std::vector;
-
 namespace py = pybind11;
 
 
+RenderWindow window;
+Bat bat;
+Ball ball;
 int score;
-bool addScore;
 int lives;
+
+bool addScore;
 bool gameover = false;
 Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
 Font font;
 string gameStatuscontent;
+
+
+PYBIND11_EMBEDDED_MODULE(PongGame, m) {
+	m.attr("windowX") = window.getSize().x;
+	m.attr("windowY") = window.getSize().y;
+	m.attr("ballPos") = &ball;
+}
 
 void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
 void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget);
@@ -103,40 +113,43 @@ void setScreenText(RenderWindow& window, int& scoreTarget)
 }
 
 
-
 int main()
 {
+	//initialize Python interpreter
 	py::scoped_interpreter guard{};
-	py::print("Hello, World!");
 
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
 	int i = 0;
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	RenderWindow window(vm, "Pong Game", Style::Default);
+	window.create(vm, "Pong Game", Style::Default);
+
 
 	Clock clock;
 	Music bgMusic;
 	int scoreTarget = 10000;
-	//bgMusic.openFromFile(".\\resources\\background_music.wav");
+	bgMusic.openFromFile(".\\resources\\background_music.wav");
 	bgMusic.setLoop(true);
 	bgMusic.setVolume(30);
 	bgMusic.play();
 
-
 	//create and initialize
-	Bat bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
-	Ball ball(window.getSize().x / 2, 10);
+	bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	ball= Ball(window.getSize().x / 2, 10);
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	lives = 5;
 	score = 0;
 	addScore = false;
 
+
 	setScreenText(window, scoreTarget);
 	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
 
 	//run python script here
+	py::module_::import("ai");
+
+
 
 	while (window.isOpen())
 	{

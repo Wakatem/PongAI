@@ -2,6 +2,9 @@
 #include "..\headers\Bat.h"
 
 
+Bat::Bat(){}
+
+
 Bat::Bat(float startX, float startY) {
 	m_position.x = startX;
 	m_position.y = startY;

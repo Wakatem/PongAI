@@ -38,6 +38,9 @@
   <ItemGroup>
     <Font Include="resources\game_over.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ai.py" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

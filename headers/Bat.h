@@ -11,7 +11,7 @@ private:
 	bool m_MovingRight = false;
 	bool m_MovingLeft = false;
 	float calcPos;
-public:
+public
 	Bat(float startX, float startY);
 	sf::FloatRect getPosition();
 	sf::RectangleShape getShape();

@@ -17,6 +17,7 @@ private:
 	bool cameFromTop = true;
 	int collisionStatus = 0;
 public:
+	Ball();
 	Ball(float startX, float startY);
 	FloatRect getPosition();
 	CircleShape getShape();
