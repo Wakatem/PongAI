@@ -16,8 +16,7 @@ private:
 	bool cameFromLeft = false;
 	bool cameFromTop = true;
 	int collisionStatus = 0;
-public:
-	Ball();
+public
 	Ball(float startX, float startY);
 	FloatRect getPosition();
 	CircleShape getShape();
