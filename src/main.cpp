@@ -114,19 +114,19 @@ int main()
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	RenderWindow window(vm, "Pong Game", Style::None);
+	RenderWindow window(vm, "Pong Game", Style::Default);
 
 	Clock clock;
 	Music bgMusic;
 	int scoreTarget = 10000;
-	bgMusic.openFromFile(".\\resources\\background_music.wav");
+	//bgMusic.openFromFile(".\\resources\\background_music.wav");
 	bgMusic.setLoop(true);
 	bgMusic.setVolume(30);
 	bgMusic.play();
 
 
 	//create and initialize
-	Bat bat(window.getSize().x / 2, window.getSize().y - 80);
+	Bat bat(window.getSize().x / 2, window.getSize().y - 300);
 	Ball ball(window.getSize().x / 2, 10);
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	lives = 5;
@@ -136,6 +136,7 @@ int main()
 	setScreenText(window, scoreTarget);
 	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
 
+	//run python script here
 
 	while (window.isOpen())
 	{
