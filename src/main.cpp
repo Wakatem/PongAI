@@ -34,7 +34,6 @@ string gameStatuscontent;
 PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 	m.attr("windowX") = window.getSize().x;
 	m.attr("windowY") = window.getSize().y;
-	m.attr("ballPos") = &ball;
 }
 
 void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
