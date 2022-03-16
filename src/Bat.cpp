@@ -67,3 +67,8 @@ void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 	m_Shape.setPosition(m_position);
 
 }
+
+void Bat::resetBat(float startX)
+{
+	m_position.x = startX;
+}

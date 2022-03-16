@@ -20,4 +20,5 @@ public:
 	void stopLeft();
 	void stopRight();
 	void update(sf::Time dt, sf::RenderWindow& window, sf::Color color);
+	void resetBat(float startX);
 };

@@ -126,7 +126,7 @@ int main()
 
 
 	//create and initialize
-	Bat bat(window.getSize().x / 2, window.getSize().y - 300);
+	Bat bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
 	Ball ball(window.getSize().x / 2, 10);
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	lives = 5;
@@ -159,6 +159,7 @@ int main()
 			//game restarts
 			gameover = false;
 			ball.resetBall(window.getSize().x / 2, 10);
+			bat.resetBat(window.getSize().x / 2 - 100);
 			score = 0;
 			lives = 5;
 		}
