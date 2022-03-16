@@ -1,0 +1,22 @@
+- update game
+	- change bat's width
+	- change bat's y position
+	- reset bat's position when game restarts
+
+
+- extract environment state data -> inputs: remaining lives, current score, current activated column
+	(defined columns -> bat's width, the window's width)
+	(current activated column -> ball's position)
+
+-develop the q learning algorithm
+	- define the state space
+	- define the action space
+	- define the q table
+	- define number of episodes
+	- define exploration rate decay
+	- define learning rate
+	- store the q table physically
+
+- train the agent
+
+- extract training data
