@@ -18,8 +18,11 @@ using std::vector;
 namespace py = pybind11;
 
 
+typedef std::shared_ptr<Bat> BatPtr;
+
+
 RenderWindow window;
-//Bat bat;
+BatPtr bat;
 Ball ball;
 int score;
 int lives;
@@ -30,7 +33,12 @@ Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
 Font font;
 string gameStatuscontent;
 
-typedef std::shared_ptr<Bat> BatPtr;
+
+struct PongDetails 
+{
+
+};
+
 
 PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 	py::class_<Bat, BatPtr>(m, "Bat")
@@ -41,6 +49,7 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 	m.attr("windowY") = window.getSize().y;
 	
 }
+
 
 void updateGameValues(RenderWindow& window, Clock& clock, BatPtr bat, Ball& ball);
 void updateGameWindow(RenderWindow& window, BatPtr bat, Ball& ball, int& scoreTarget);
@@ -141,7 +150,7 @@ int main()
 
 	//create and initialize
 	//bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
-	BatPtr bat = std::make_shared<Bat>(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	bat = std::make_shared<Bat>(window.getSize().x / 2 - 100, window.getSize().y - 300);
 	
 
 	ball= Ball(window.getSize().x / 2, 10);
@@ -156,8 +165,7 @@ int main()
 
 	//run python script here
 	py::module ai = py::module::import("ai");
-	//ai.attr("baat") = bat;
-
+	ai.attr("baat") = bat;
 
 
 	while (window.isOpen())

@@ -1,6 +1,8 @@
 import PongGame as pg
 
 print(pg.windowX);
-#print(baat.getBatPos());
-bat=pg.Bat("anything");
-print(bat.getBatSpeed());
+#bat=pg.Bat("anything");
+#print(bat.getBatPos());
+changed = 0
+
+while(changed)
