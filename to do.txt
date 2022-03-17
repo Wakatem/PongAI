@@ -20,3 +20,15 @@
 - train the agent
 
 - extract training data
+
+
+
+
+def defineSpaces():
+    pass
+
+def Q_learning():
+    pass
+
+def determineState():
+    pass

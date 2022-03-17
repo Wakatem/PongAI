@@ -18,13 +18,10 @@ using std::vector;
 namespace py = pybind11;
 
 
-
-
 RenderWindow window;
-Ball ball;
 
 bool addScore;
-bool gameover = false;
+
 Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
 Font font;
 string gameStatuscontent;
@@ -39,6 +36,7 @@ struct PongDetails
 	float windowY;
 	float batWidth;
 	float ballPos;	//ball boundraies 
+	bool gameover = false;
 
 }pg;
 
@@ -52,7 +50,8 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("windowWidth", &pg.windowX)
 		.def_readonly_static("windowHeight", &pg.windowY)
 		.def_readonly_static("batwidth", &pg.batWidth)
-		.def_readonly_static("ballPos", &pg.ballPos);
+		.def_readonly_static("ballPos", &pg.ballPos)
+		.def_readonly_static("gameover", &pg.gameover);
 
 }
 
@@ -60,7 +59,6 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
 void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget);
 Color updateBatColor(int& score);
 void setScreenText(RenderWindow& window, int& scoreTarget);
-
 
 
 int main()
@@ -81,7 +79,7 @@ int main()
 	Music bgMusic;
 	bgMusic.openFromFile(".\\resources\\background_music.wav");
 	bgMusic.setLoop(true);
-	bgMusic.setVolume(30);
+	bgMusic.setVolume(0);
 	bgMusic.play();
 
 	Bat bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
@@ -92,7 +90,7 @@ int main()
 	pg.windowX = window.getSize().x;
 	pg.windowY = window.getSize().y;
 	pg.batWidth = bat.getPosition().width;
-
+	
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	addScore = false;
 
@@ -123,7 +121,7 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::R))
 		{
 			//game restarts
-			gameover = false;
+			pg.gameover = false;
 			ball.resetBall(window.getSize().x / 2, 10);
 			bat.resetBat(window.getSize().x / 2 - 100);
 			pg.lives = 5;
@@ -137,17 +135,13 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::Right))   bat.moveRight();
 		else                                           bat.stopRight();
 
-
 		updateGameWindow(window, bat, ball, pg.scoreTarget);
 	}
-
 
 	updateValues_t.join();
 
 	return 0;
 }
-
-
 
 
 void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
@@ -161,7 +155,7 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 		int value = ball.update(dt, window, bat);
 		pg.ballPos = ball.getPosition().left + ball.getPosition().width;
 
-		if (gameover == false)
+		if (pg.gameover == false)
 		{
 			//update bat frames
 			bat.update(dt, window, updateBatColor(pg.score));
@@ -207,7 +201,6 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 
 }
 
-
 void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget)
 {
 	window.clear();
@@ -231,14 +224,14 @@ void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarg
 		{
 			gameStatuscontent = "You Won!";
 			gameoverText.setPosition(gameStatus.getPosition().x + 185, gameStatus.getPosition().y + 300);
-			gameover = true;
+			pg.gameover = true;
 		}
 		else
 		{
 			gameStatuscontent = "You Lost";
 			//to properly align it
 			gameoverText.setPosition(gameStatus.getPosition().x + 160, gameStatus.getPosition().y + 300);
-			gameover = true;
+			pg.gameover = true;
 		}
 
 		std::stringstream gameStatusStream;
@@ -300,10 +293,8 @@ Color updateBatColor(int& score)
 
 }
 
-
 void setScreenText(RenderWindow& window, int& scoreTarget)
 {
-
 	controls.setFont(font);
 	controls.setCharacterSize(45);
 	controls.setFillColor(Color::White);
