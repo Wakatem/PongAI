@@ -4,6 +4,10 @@
 
 Bat::Bat(){}
 
+Bat::Bat(std::string name) {
+	
+}
+
 
 Bat::Bat(float startX, float startY) {
 	m_position.x = startX;

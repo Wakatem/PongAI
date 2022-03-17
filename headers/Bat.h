@@ -13,6 +13,7 @@ private:
 	float calcPos;
 public:
 	Bat();
+	Bat(std::string name);
 	Bat(float startX, float startY);
 	sf::FloatRect getPosition();
 	sf::RectangleShape getShape();

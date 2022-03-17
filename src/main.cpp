@@ -33,7 +33,8 @@ string gameStatuscontent;
 typedef std::shared_ptr<Bat> BatPtr;
 
 PYBIND11_EMBEDDED_MODULE(PongGame, m) {
-	py::class_<Bat>(m, "Bat")
+	py::class_<Bat, BatPtr>(m, "Bat")
+		.def(py::init<std::string>())
 		.def("getBatSpeed", &Bat::getSpeed);
 
 	m.attr("windowX") = window.getSize().x;
