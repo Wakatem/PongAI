@@ -19,7 +19,7 @@ namespace py = pybind11;
 
 
 RenderWindow window;
-Bat bat;
+//Bat bat;
 Ball ball;
 int score;
 int lives;
@@ -30,14 +30,19 @@ Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
 Font font;
 string gameStatuscontent;
 
+typedef std::shared_ptr<Bat> BatPtr;
 
 PYBIND11_EMBEDDED_MODULE(PongGame, m) {
+	py::class_<Bat>(m, "Bat")
+		.def("getBatSpeed", &Bat::getSpeed);
+
 	m.attr("windowX") = window.getSize().x;
 	m.attr("windowY") = window.getSize().y;
+	
 }
 
-void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
-void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget);
+void updateGameValues(RenderWindow& window, Clock& clock, BatPtr bat, Ball& ball);
+void updateGameWindow(RenderWindow& window, BatPtr bat, Ball& ball, int& scoreTarget);
 
 
 
@@ -134,7 +139,10 @@ int main()
 	bgMusic.play();
 
 	//create and initialize
-	bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	//bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	BatPtr bat = std::make_shared<Bat>(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	
+
 	ball= Ball(window.getSize().x / 2, 10);
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	lives = 5;
@@ -143,10 +151,11 @@ int main()
 
 
 	setScreenText(window, scoreTarget);
-	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
+	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), bat, std::ref(ball));
 
 	//run python script here
-	py::module_::import("ai");
+	py::module ai = py::module::import("ai");
+	//ai.attr("baat") = bat;
 
 
 
@@ -171,17 +180,18 @@ int main()
 			//game restarts
 			gameover = false;
 			ball.resetBall(window.getSize().x / 2, 10);
-			bat.resetBat(window.getSize().x / 2 - 100);
+			//bat.resetBat(window.getSize().x / 2 - 100);
+			bat.get()->resetBat(window.getSize().x / 2 - 100);
 			score = 0;
 			lives = 5;
 		}
 
-		if (Keyboard::isKeyPressed(Keyboard::Left))    bat.moveLeft();
-		else                                           bat.stopLeft();
+		if (Keyboard::isKeyPressed(Keyboard::Left))    bat.get()->moveLeft();
+		else                                           bat.get()->stopLeft();
 
 
-		if (Keyboard::isKeyPressed(Keyboard::Right))   bat.moveRight();
-		else                                           bat.stopRight();
+		if (Keyboard::isKeyPressed(Keyboard::Right))   bat.get()->moveRight();
+		else                                           bat.get()->stopRight();
 
 
 		updateGameWindow(window, bat, ball, scoreTarget);
@@ -195,7 +205,7 @@ int main()
 
 
 
-void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
+void updateGameValues(RenderWindow& window, Clock& clock, BatPtr bat, Ball& ball)
 {
 	while (window.isOpen())
 	{
@@ -203,12 +213,12 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 
 
 		//update ball frames
-		int value = ball.update(dt, window, bat);
+		int value = ball.update(dt, window, *bat.get());
 
 		if (gameover == false)
 		{
 			//update bat frames
-			bat.update(dt, window, updateBatColor(score));
+			bat.get()->update(dt, window, updateBatColor(score));
 
 			//if ball hits bottom wall
 			if (value == -1)
@@ -231,7 +241,7 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 
 
 			//in order to avoid increasing score up to thousands with a single hit, we must check that the ball hit the bat and [[[ no longer intersects with it ]]]
-			if (addScore == true && ball.getPosition().intersects(bat.getPosition()) == false)
+			if (addScore == true && ball.getPosition().intersects(bat.get()->getPosition()) == false)
 			{
 				score += 430;
 				addScore = false;
@@ -252,7 +262,7 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 }
 
 
-void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget)
+void updateGameWindow(RenderWindow& window, BatPtr bat, Ball& ball, int& scoreTarget)
 {
 	window.clear();
 	if (lives > 0 && score < scoreTarget)
@@ -298,7 +308,7 @@ void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarg
 	window.draw(controls);
 	window.draw(scoreHud);
 	window.draw(livesHud);
-	window.draw(bat.getShape());
+	window.draw(bat.get()->getShape());
 	window.draw(ball.getShape());
 	window.display();
 }

@@ -22,6 +22,11 @@ sf::RectangleShape Bat::getShape()
 	return m_Shape;
 }
 
+float Bat::getSpeed()
+{
+	return m_Speed;
+}
+
 void Bat::moveLeft()
 {
 	m_MovingLeft = true;

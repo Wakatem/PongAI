@@ -11,7 +11,8 @@ private:
 	bool m_MovingRight = false;
 	bool m_MovingLeft = false;
 	float calcPos;
-public
+public:
+	Bat();
 	Bat(float startX, float startY);
 	sf::FloatRect getPosition();
 	sf::RectangleShape getShape();
@@ -21,4 +22,5 @@ public
 	void stopRight();
 	void update(sf::Time dt, sf::RenderWindow& window, sf::Color color);
 	void resetBat(float startX);
+	float getSpeed();
 };
