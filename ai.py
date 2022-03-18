@@ -43,18 +43,23 @@ def selectAction(explore):
 
 
 def findState():
-    i = 0
+    livesLeft = (pd.lives != 0)
+    scoreLeft = (pd.score != pd.scoreTarget)
+    sensorActivated = isSensorActivated()
     vc = findVirtualColumn()
-    for state in range(len(states_space)):
-        if (pd.lives != 0) == state[0]:
-            if (pd.score != pd.scoreTarget) == state[1]:
-                if isSensorActivated == state[2]:
-                    if vc == state[3]:
-                        return states_space.index(state)
-
-
-
-
+    if livesLeft:
+        if scoreLeft:
+            for state in range(len(states_space)):
+                if livesLeft == state[0]  and  scoreLeft == state[1]  and  sensorActivated == state[2]  and  vc == state[3]:
+                    return states_space.index(state)
+        else:
+            for state in range(len(states_space)): 
+                if state[0]==True  and  state[1]==False:
+                    return states_space.index(state) #goal state
+    else:   
+        for state in range(len(states_space)): 
+                if state[0]==False  and  state[1]==True:
+                    return states_space.index(state) #lost state
 
  
 def QLearning():
@@ -79,6 +84,9 @@ def QLearning():
 #/////////////////////////////////////////////////////////////////////////
  
 defineSpaces()
+print(findState())
+
+
 
 
 

@@ -73,11 +73,11 @@ int main()
 {
 	
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
-	int i = 1;
+	int i = 0;
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	window.create(vm, "Pong Game", Style::None);
+	window.create(vm, "Pong Game", Style::Default);
 
 	Clock clock;
 	Music bgMusic;
