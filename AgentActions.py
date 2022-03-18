@@ -82,6 +82,16 @@ def performAction(action_index):
     pass
 
 
+def findVirtualColumn():
+    i = 0
+    for vc in range(len(virtual_columns)):
+        if vc[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= vc[1]:
+            return i
+    i+=1
+
+            
+
+
 # ================================================
 countColumns()
 mapColumns()

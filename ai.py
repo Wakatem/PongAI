@@ -7,20 +7,16 @@ QTable = 0
 
 learningRate = 0
 discountRate = 0
-explorationRate = 0
-EDRate = 0           #exploration decay rate
-
-
+explorationRate = 1
+exploration_decay_rate = 0.001          
 
 
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
      
-
 def defineSpaces():
 
     #define states space
-    columnID = 0
 
     #when game is not over AND sensor is off
     for columnID in range(10):
@@ -47,14 +43,38 @@ def selectAction(explore):
 
 
 def findState():
-    #call isColumnActivated
-    pass
+    i = 0
+    vc = findVirtualColumn()
+    for state in range(len(states_space)):
+        if (pd.lives != 0) == state[0]:
+            if (pd.score != pd.scoreTarget) == state[1]:
+                if isSensorActivated == state[2]:
+                    if vc == state[3]:
+                        return states_space.index(state)
 
 
+
+
+
+ 
 def QLearning():
     for i in range(numofEpisodes):
+
+        #each episode - restart environment automatically
+        current_rewards = 0
         while pd.gameover == False:
-            pass
+            findState()
+            explorationRateThreshold = random.uniform(0,1)
+            action = 0
+            if explorationRateThreshold > explorationRate:
+                action = selectAction(False)
+            else:
+                action = selectAction(True)
+
+            performAction(action)
+
+            
+
 
 #/////////////////////////////////////////////////////////////////////////
  
