@@ -10,7 +10,10 @@ private:
 	float m_Speed = 1800.0f;
 	bool m_MovingRight = false;
 	bool m_MovingLeft = false;
+	float startingX;
+	float endingX;
 	float calcPos;
+	bool positionUpdated = false;
 public:
 	Bat();
 	Bat(std::string name);
@@ -19,6 +22,7 @@ public:
 	sf::RectangleShape getShape();
 	void moveLeft();
 	void moveRight();
+	void moveTo(float startingX);
 	void stopLeft();
 	void stopRight();
 	void update(sf::Time dt, sf::RenderWindow& window, sf::Color color);

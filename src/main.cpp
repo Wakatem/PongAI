@@ -17,7 +17,7 @@ using std::string;
 using std::vector;
 namespace py = pybind11;
 
-
+Bat* bat;
 RenderWindow window;
 
 bool addScore;
@@ -43,6 +43,11 @@ struct PongDetails
 }pg;
 
 
+void move(float startingX)
+{
+	bat->moveTo(startingX);
+}
+
 PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 	py::class_<PongDetails>(m, "PongDetails")
 		.def(py::init<>())
@@ -56,6 +61,8 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("ballPos_vertical", &pg.ballPos_vertical)
 		.def_readonly_static("ballPos_horizontal", &pg.ballPos_horizontal)
 		.def_readonly_static("gameover", &pg.gameover);
+
+	m.def("move", &move);
 
 }
 
@@ -86,22 +93,22 @@ int main()
 	bgMusic.setVolume(0);
 	bgMusic.play();
 
-	Bat bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	bat = new Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
 	Ball ball(window.getSize().x / 2 - 100, window.getSize().y - 300);
 
 
 	//Update pong details
 	pg.windowX = window.getSize().x;
 	pg.windowY = window.getSize().y;
-	pg.batWidth = bat.getPosition().width;
-	pg.batY = bat.getPosition().top;
+	pg.batWidth = bat->getPosition().width;
+	pg.batY = bat->getPosition().top;
 
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	addScore = false;
 	setScreenText(window, pg.scoreTarget);
 
 	//start game logic
-	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
+	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(*bat), std::ref(ball));
 
 	//run python script here
 	thread runscript_t(runScript);
@@ -130,24 +137,30 @@ int main()
 			//game restarts
 			pg.gameover = false;
 			ball.resetBall(window.getSize().x / 2, 10);
-			bat.resetBat(window.getSize().x / 2 - 100);
+			bat->resetBat(window.getSize().x / 2 - 100);
 			pg.lives = 5;
 			pg.score = 0;
 		}
 
-		if (Keyboard::isKeyPressed(Keyboard::Left))    bat.moveLeft();
-		else                                           bat.stopLeft();
+		if (Keyboard::isKeyPressed(Keyboard::Left))	   bat->moveLeft();
+		else
+		{
+			bat->stopLeft();
+			int horizontalSpace = bat->getPosition().left + bat->getPosition().width;
+			std::cout << horizontalSpace << std::endl;
+		}					
 
 
-		if (Keyboard::isKeyPressed(Keyboard::Right))   bat.moveRight();
-		else                                           bat.stopRight();
+		if (Keyboard::isKeyPressed(Keyboard::Right))   bat->moveRight(); 
+		else                                           bat->stopRight();
 
-		updateGameWindow(window, bat, ball, pg.scoreTarget);
+		updateGameWindow(window, *bat, ball, pg.scoreTarget);
 	}
 
 	updateValues_t.join();
 	runscript_t.join();
 
+	delete bat;
 	return 0;
 }
 

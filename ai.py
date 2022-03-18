@@ -85,7 +85,7 @@ def QLearning():
             performAction(action)
             #update qtable
 
-    explorationRate = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
+        explorationRate = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
 
             
 
@@ -94,7 +94,6 @@ def QLearning():
  
 defineSpaces()
 
-#print(tabulate(QTable, tablefmt="grid"))
 
 
 

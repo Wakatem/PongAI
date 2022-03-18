@@ -53,31 +53,46 @@ void Bat::stopRight()
 
 void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 {
-
 	m_Shape.setFillColor(color);
 
-	if (m_MovingLeft)
-	{
+	if (startingX == this->getPosition().left)
+		positionUpdated = true;
 
-		calcPos = m_position.x - m_Speed * dt.asSeconds();
-		if (calcPos > 0)
+	if (!positionUpdated)
+	{
+		//go to left
+		if (startingX < this->getPosition().left)
 		{
-			m_position.x = calcPos;
+			calcPos = m_position.x - m_Speed * dt.asSeconds();
+			if (calcPos > 0)
+			{
+				m_position.x = calcPos;
+			}
 		}
 
-	}
-
-	if (m_MovingRight)
-	{
-		calcPos = m_position.x + m_Speed * dt.asSeconds();
-		if (calcPos + this->getPosition().width < window.getSize().x)
+		//go to right
+		else if (this->getPosition().left < startingX)
 		{
-			m_position.x = calcPos;
+			calcPos = m_position.x + m_Speed * dt.asSeconds();
+			if (calcPos + this->getPosition().width < window.getSize().x)
+			{
+				m_position.x = calcPos;
+			}
 		}
 	}
 
 	m_Shape.setPosition(m_position);
 
+}
+
+
+
+void Bat::moveTo(float startingX)
+{
+
+	this->startingX = startingX;
+	this->positionUpdated = false;
+	
 }
 
 void Bat::resetBat(float startX)
