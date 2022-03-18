@@ -83,11 +83,11 @@ def performAction(action_index):
 
 
 def findVirtualColumn():
-    i = 0
-    for vc in range(len(virtual_columns)):
+    
+    for vc in virtual_columns:
         if vc[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= vc[1]:
-            return i
-    i+=1
+            return virtual_columns.index(vc)
+    
 
             
 

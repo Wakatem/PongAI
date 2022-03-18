@@ -1,14 +1,19 @@
 from AgentActions import *
+import numpy as np
+import random 
 
 numofEpisodes = 1000
 states_space = []
 actions_space = []
-QTable = 0
+
+QTable = np.zeros((22,10))
 
 learningRate = 0
 discountRate = 0
 explorationRate = 1
-exploration_decay_rate = 0.001          
+exploration_decay_rate = 0.001   
+min_exploration_rate = 0.01
+max_exploration_rate = 1
 
 
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -34,49 +39,53 @@ def defineSpaces():
     actions_space = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"]
 
     
-def selectAction(explore):
+def selectAction(explore, state):
     if explore is True:
-        pass #return index
+        return random.randint(0,9) #return index
     else:
-        pass #return index
+        return np.argmax(QTable[state,:]) 
 
-
+        
 
 def findState():
     livesLeft = (pd.lives != 0)
     scoreLeft = (pd.score != pd.scoreTarget)
     sensorActivated = isSensorActivated()
     vc = findVirtualColumn()
+    
     if livesLeft:
         if scoreLeft:
-            for state in range(len(states_space)):
+            for state in states_space:
                 if livesLeft == state[0]  and  scoreLeft == state[1]  and  sensorActivated == state[2]  and  vc == state[3]:
                     return states_space.index(state)
         else:
-            for state in range(len(states_space)): 
+            for state in states_space: 
                 if state[0]==True  and  state[1]==False:
                     return states_space.index(state) #goal state
     else:   
-        for state in range(len(states_space)): 
+        for state in states_space: 
                 if state[0]==False  and  state[1]==True:
                     return states_space.index(state) #lost state
 
  
 def QLearning():
-    for i in range(numofEpisodes):
+    for episode in range(numofEpisodes):
 
         #each episode - restart environment automatically
         current_rewards = 0
         while pd.gameover == False:
-            findState()
+            state = findState()
             explorationRateThreshold = random.uniform(0,1)
             action = 0
             if explorationRateThreshold > explorationRate:
-                action = selectAction(False)
+                action = selectAction(False, state)
             else:
-                action = selectAction(True)
+                action = selectAction(True, state)
 
             performAction(action)
+            #update qtable
+
+    explorationRate = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
 
             
 
@@ -84,7 +93,11 @@ def QLearning():
 #/////////////////////////////////////////////////////////////////////////
  
 defineSpaces()
-print(findState())
+
+#print(tabulate(QTable, tablefmt="grid"))
+
+
+
 
 
 
