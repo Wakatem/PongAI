@@ -35,7 +35,9 @@ struct PongDetails
 	float windowX;
 	float windowY;
 	float batWidth;
-	float ballPos;	//ball boundraies 
+	float batY;					//y value of bat
+	float ballPos_vertical;		//ball boundraies (for vertical comparison)
+	float ballPos_horizontal;	//ball boundraies (for horizontal comparison)
 	bool gameover = false;
 
 }pg;
@@ -49,8 +51,10 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("scoreTarget", &pg.scoreTarget)
 		.def_readonly_static("windowWidth", &pg.windowX)
 		.def_readonly_static("windowHeight", &pg.windowY)
-		.def_readonly_static("batwidth", &pg.batWidth)
-		.def_readonly_static("ballPos", &pg.ballPos)
+		.def_readonly_static("batWidth", &pg.batWidth)
+		.def_readonly_static("batY", &pg.batY)
+		.def_readonly_static("ballPos_vertical", &pg.ballPos_vertical)
+		.def_readonly_static("ballPos_horizontal", &pg.ballPos_horizontal)
 		.def_readonly_static("gameover", &pg.gameover);
 
 }
@@ -68,12 +72,11 @@ int main()
 	py::scoped_interpreter guard{};
 
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
-	int i = 0;
+	int i = 1;
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	window.create(vm, "Pong Game", Style::Default);
-
+	window.create(vm, "Pong Game", Style::None);
 
 	Clock clock;
 	Music bgMusic;
@@ -90,7 +93,8 @@ int main()
 	pg.windowX = window.getSize().x;
 	pg.windowY = window.getSize().y;
 	pg.batWidth = bat.getPosition().width;
-	
+	pg.batY = bat.getPosition().top;
+
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	addScore = false;
 
@@ -153,7 +157,8 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 
 		//update ball frames
 		int value = ball.update(dt, window, bat);
-		pg.ballPos = ball.getPosition().left + ball.getPosition().width;
+		pg.ballPos_horizontal = ball.getPosition().left + ball.getPosition().width;
+		pg.ballPos_vertical = ball.getPosition().top + ball.getPosition().height;
 
 		if (pg.gameover == false)
 		{

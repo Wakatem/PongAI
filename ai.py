@@ -1,76 +1,61 @@
-from PongGame import PongDetails as pd
+from AgentActions import *
 
-stateSpaces = ()
-actionSpaces = ()
+numofEpisodes = 1000
+states_space = ()
+actions_space = ()
 QTable = 0
 
 learningRate = 0
 discountRate = 0
 explorationRate = 0
-EDRate = 0  #exploration decay rate
+EDRate = 0           #exploration decay rate
 
-columns = []
 
-def countColumns():
-    
-    starting_x = 0
-    current_x = 0
-    i=1
 
-    while current_x <= pd.windowWidth:    
-        if i%2==0:
-            current_x += pd.batwidth
-            columns.append((starting_x,current_x))
-        else:
-            starting_x = current_x
-        i+=1
 
-countColumns()
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-#for column in columns:
- #   print(column[])
-
-def columnActivation(column_index):
-    i=0
-    for pair in columns:
-        if pair[0] <= pd.ballPos and pd.ballPos <= pair[1]:
-            return i
-    i+=1
-   
-
+     
 
 def defineSpaces():
+
+    #define states space
     for i in range(len(columns)):
-        columns += (True, True, False, i)
+        states_space += (True, True, False, i)
 
     for i in range(len(columns)):
-        columns += (True, True, True, i)
+        states_space += (True, True, True, i)
 
-    goal_state = (True, False, False, -1)
-    lost_state = (False, True, False, -1)
+    goal_state = (True, False, False, -1);   states_space += goal_state;
+    loss_state = (False, True, False, -1);   states_space += loss_state;
 
-def selectAction():
-    pass
+
+    #define actions space
+
+
+    
+def selectAction(explore):
+    if explore is True:
+        pass #return index
+    else:
+        pass #return index
+
+
 
 def findState():
+    #call isColumnActivated
     pass
-    #call columnActivation
 
 
+def QLearning():
+    for i in range(numofEpisodes):
+        while pd.gameover == False:
+            pass
+
+#/////////////////////////////////////////////////////////////////////////
+
+while True:
+    print(pd.ballPos_vertical)
    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

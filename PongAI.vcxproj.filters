@@ -58,5 +58,6 @@
     <None Include="ai.py">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="AgentActions.py" />
   </ItemGroup>
 </Project>

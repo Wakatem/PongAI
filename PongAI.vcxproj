@@ -39,6 +39,7 @@
     <Font Include="resources\game_over.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AgentActions.py" />
     <None Include="ai.py" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
