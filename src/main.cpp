@@ -59,17 +59,21 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 
 }
 
+
+
+
 void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
 void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget);
 Color updateBatColor(int& score);
 void setScreenText(RenderWindow& window, int& scoreTarget);
+void runScript();
 
 
 int main()
 {
 
 	//initialize Python interpreter
-	py::scoped_interpreter guard{};
+	
 
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
 	int i = 1;
@@ -97,13 +101,13 @@ int main()
 
 	font.loadFromFile(".\\resources\\game_over.ttf");
 	addScore = false;
-
-
 	setScreenText(window, pg.scoreTarget);
+
+	//start game logic
 	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
 
 	//run python script here
-	py::module::import("ai");
+	thread runscript_t(runScript);
 
 
 	while (window.isOpen())
@@ -119,8 +123,10 @@ int main()
 		}
 
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			pg.gameover = true;
 			window.close();
-
+		}
 
 		if (Keyboard::isKeyPressed(Keyboard::R))
 		{
@@ -143,8 +149,15 @@ int main()
 	}
 
 	updateValues_t.join();
+	runscript_t.join();
 
 	return 0;
+}
+
+void runScript()
+{
+	py::scoped_interpreter guard{};
+	py::module::import("ai");
 }
 
 

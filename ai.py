@@ -53,9 +53,6 @@ def QLearning():
             pass
 
 #/////////////////////////////////////////////////////////////////////////
-
-while True:
-    print(pd.ballPos_vertical)
    
 
 
