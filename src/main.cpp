@@ -71,10 +71,7 @@ void runScript();
 
 int main()
 {
-
-	//initialize Python interpreter
 	
-
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
 	int i = 1;
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
@@ -156,6 +153,7 @@ int main()
 
 void runScript()
 {
+	//initialize Python interpreter
 	py::scoped_interpreter guard{};
 	py::module::import("ai");
 }

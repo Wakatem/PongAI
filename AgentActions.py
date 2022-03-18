@@ -1,6 +1,6 @@
 from PongGame import PongDetails as pd
 
-columns =  []        #columns found based on screen width
+actual_columns =  []        #columns found based on screen width
 virtual_columns = [] #10 virtual columns
 
 
@@ -15,7 +15,7 @@ def countColumns():
             ending_x += pd.batWidth
 
             #add current x as ending position and save the pair
-            columns.append((starting_x,ending_x))
+            actual_columns.append((starting_x,ending_x))
                 
             #next column starting x is the current column ending x
             starting_x = ending_x
@@ -25,14 +25,14 @@ def countColumns():
             diff = pd.windowWidth - ending_x
             ending_x += diff
 
-            columns.append((starting_x,ending_x))
+            actual_columns.append((starting_x,ending_x))
             break;
         i+=1
 
 
 
 def mapColumns():
-    steps = int(len(columns) / 10)  #total window columns to step into per virtual column
+    steps = int(len(actual_columns) / 10)  #total window columns to step into per virtual column
     starting_x = 0                  #starting x value of X virtual column
     ending_x = 0                    #ending x value of X virtual column
     
@@ -42,9 +42,9 @@ def mapColumns():
 
         if vColumn == 9:
             #map remaining columns to the last virtual column
-            starting_x = columns[i][0]
-            while i != len(columns)-1: i+=1
-            ending_x = columns[i][1]
+            starting_x = actual_columns[i][0]
+            while i != len(actual_columns)-1: i+=1
+            ending_x = actual_columns[i][1]
 
             #add virtual column tuple to list
             virtual_columns.append((starting_x, ending_x))
@@ -53,10 +53,10 @@ def mapColumns():
             for step in range(steps): 
               #get starting x from first column only
               if step == 0:
-                starting_x = columns[i][0]
+                starting_x = actual_columns[i][0]
               i+=1 
 
-            ending_x = columns[i-1][1]
+            ending_x = actual_columns[i-1][1]
 
             #add virtual column tuple to list
             virtual_columns.append((starting_x, ending_x))
@@ -66,12 +66,12 @@ def mapColumns():
 
 def isColumnActivated(column_index):
     i=0
-    for pair in columns:
+    for pair in actual_columns:
         if pair[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= pair[1]:
             return i
     i+=1
  
-def isSenorActivated():
+def isSensorActivated():
     if pd.ballPos_vertical > pd.batY:
         return True
     else:
@@ -80,3 +80,8 @@ def isSenorActivated():
 
 def performAction(action_index):
     pass
+
+
+# ================================================
+countColumns()
+mapColumns()

@@ -1,8 +1,8 @@
 from AgentActions import *
 
 numofEpisodes = 1000
-states_space = ()
-actions_space = ()
+states_space = []
+actions_space = []
 QTable = 0
 
 learningRate = 0
@@ -20,18 +20,22 @@ EDRate = 0           #exploration decay rate
 def defineSpaces():
 
     #define states space
-    for i in range(len(columns)):
-        states_space += (True, True, False, i)
+    columnID = 0
 
-    for i in range(len(columns)):
-        states_space += (True, True, True, i)
+    #when game is not over AND sensor is off
+    for columnID in range(10):
+        states_space.append((True, True, False, columnID))
+    
+    #when game is not over AND sensor is on
+    for columnID in range(10):
+        states_space.append((True, True, True, columnID))
 
-    goal_state = (True, False, False, -1);   states_space += goal_state;
-    loss_state = (False, True, False, -1);   states_space += loss_state;
+    goal_state = (True, False, False, -1);   states_space.append(goal_state);
+    loss_state = (False, True, False, -1);   states_space.append(loss_state);
 
 
     #define actions space
-
+    actions_space = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"]
 
     
 def selectAction(explore):
@@ -53,6 +57,8 @@ def QLearning():
             pass
 
 #/////////////////////////////////////////////////////////////////////////
-   
+ 
+defineSpaces()
+
 
 
