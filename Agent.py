@@ -41,7 +41,7 @@ def defineSpaces():
 
 def determineState():
     livesLeft = (pd.lives != 0)
-    scoreLeft = (pd.score != pd.scoreTarget)
+    scoreLeft = (pd.score < pd.scoreTarget)
     sensorActivated = isSensorActivated()
     ball_toUp = pd.ball_toUp
     vc = findVirtualColumn()
@@ -104,7 +104,7 @@ def performAction(state, action):
 
     #observe the change in inputs
     livesLeft = (pd.lives != 0)
-    scoreLeft = (pd.score != pd.scoreTarget)
+    scoreLeft = (pd.score < pd.scoreTarget)
     sensorActivated = isSensorActivated()
     newColumn = findVirtualColumn()
     ball_toUp = pd.ball_toUp

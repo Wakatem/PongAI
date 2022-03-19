@@ -21,11 +21,15 @@ Bat* bat;
 Ball* ball;
 RenderWindow window;
 
-bool addScore;
 
-Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
-Font font;
-string gameStatuscontent;
+
+struct PongScreen
+{
+	Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
+	Font font;
+	string gameStatuscontent;
+}ps;
+
 
 
 struct PongDetails 
@@ -33,6 +37,8 @@ struct PongDetails
 	int lives = 5;
 	int score = 0;
 	int scoreTarget = 10000;
+	bool addScore;
+	bool loseLive;
 	float windowX;
 	float windowY;
 	float batWidth;
@@ -82,208 +88,6 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 }
 
 
-
-
-void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
-void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget);
-Color updateBatColor(int& score);
-void setScreenText(RenderWindow& window, int& scoreTarget);
-void runScript();
-
-
-int main()
-{
-	
-	vector<VideoMode> modes = VideoMode::getFullscreenModes();
-	int i = 0;
-	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
-
-	VideoMode vm = vm.getFullscreenModes()[i];
-	window.create(vm, "Pong Game", Style::Default);
-	//window.setFramerateLimit(60);
-
-	Clock clock;
-	Music bgMusic;
-	bgMusic.openFromFile(".\\resources\\background_music.wav");
-	bgMusic.setLoop(true);
-	bgMusic.setVolume(0);
-	bgMusic.play();
-
-	bat = new Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
-	ball = new Ball(window.getSize().x / 2 - 100, window.getSize().y - 300);
-
-
-	//Update pong details
-	pg.windowX = window.getSize().x;
-	pg.windowY = window.getSize().y;
-	pg.batWidth = bat->getPosition().width;
-	pg.batY = bat->getPosition().top;
-
-	font.loadFromFile(".\\resources\\game_over.ttf");
-	addScore = false;
-	setScreenText(window, pg.scoreTarget);
-
-	//start game logic
-	thread updateValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(*bat), std::ref(*ball));
-
-	//run python script here
-	thread runscript_t(runScript);
-
-
-	while (window.isOpen())
-	{
-
-		//handle player input
-		Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == Event::Closed)
-				window.close();
-
-		}
-
-		if (Keyboard::isKeyPressed(Keyboard::Escape))
-		{
-			pg.gameover = true;
-			window.close();
-		}
-
-		if (Keyboard::isKeyPressed(Keyboard::R))
-		{
-
-		}
-
-
-		updateGameWindow(window, *bat, *ball, pg.scoreTarget);
-	}
-
-	updateValues_t.join();
-	runscript_t.join();
-
-	delete bat;
-	delete ball;
-	return 0;
-}
-
-void runScript()
-{
-	//initialize Python interpreter
-	py::scoped_interpreter guard{};
-	py::module::import("Agent");
-}
-
-
-void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
-{
-	while (window.isOpen())
-	{
-		Time dt = clock.restart();
-
-
-		//update ball frames
-		int value = ball.update(dt, window, bat);
-		pg.ballPos_horizontal = ball.getPosition().left + ball.getPosition().width;
-		pg.ballPos_vertical = ball.getPosition().top + ball.getPosition().height;
-		pg.ball_toUp = ball.isBalltoUp();
-
-		if (pg.gameover == false)
-		{
-			//update bat frames
-			//bat.update(dt, window, updateBatColor(pg.score));
-
-			//if ball hits bottom wall
-			if (value == -1)
-			{
-				pg.lives -= 1;
-				if (pg.score >= 250)
-				{
-					pg.score -= 250;
-				}
-				else
-				{
-					pg.score = 0;
-				}
-			}
-			else if (value == 1)
-			{
-				addScore = true;
-			}
-
-
-
-			//in order to avoid increasing score up to thousands with a single hit, we must check that the ball hit the bat and [[[ no longer intersects with it ]]]
-			if (addScore == true && ball.getPosition().intersects(bat.getPosition()) == false)
-			{
-				pg.score += 430;
-				addScore = false;
-
-			}
-			std::stringstream scoreStream;
-			scoreStream << "Score: " << pg.score;
-			scoreHud.setString(scoreStream.str());
-
-			std::stringstream livesStream;
-			livesStream << "     |   Lives: " << pg.lives;
-			livesHud.setString(livesStream.str());
-		}
-
-	}
-
-
-}
-
-void updateGameWindow(RenderWindow& window, Bat& bat, Ball& ball, int& scoreTarget)
-{
-	window.clear();
-	if (pg.lives > 0 && pg.score < scoreTarget)
-	{
-		//nothing
-	}
-	else
-	{
-		gameStatus.setFont(font);
-		gameStatus.setCharacterSize(300);
-		gameStatus.setFillColor(Color::White);
-		gameStatus.setPosition((window.getSize().x / 3) + 70, (window.getSize().y / 5) - 100);
-
-		gameoverText.setFont(font);
-		gameoverText.setCharacterSize(70);
-		gameoverText.setFillColor(Color::White);
-		gameoverText.setString("GAME OVER");
-
-		if (pg.score >= scoreTarget)
-		{
-			gameStatuscontent = "You Won!";
-			gameoverText.setPosition(gameStatus.getPosition().x + 185, gameStatus.getPosition().y + 300);
-			pg.gameover = true;
-		}
-		else
-		{
-			gameStatuscontent = "You Lost";
-			//to properly align it
-			gameoverText.setPosition(gameStatus.getPosition().x + 160, gameStatus.getPosition().y + 300);
-			pg.gameover = true;
-		}
-
-		std::stringstream gameStatusStream;
-		gameStatusStream << gameStatuscontent;
-		gameStatus.setString(gameStatusStream.str());
-
-		window.draw(gameStatus);
-		window.draw(gameoverText);
-
-	}
-
-	window.draw(target);
-	window.draw(controls);
-	window.draw(scoreHud);
-	window.draw(livesHud);
-	window.draw(bat.getShape());
-	window.draw(ball.getShape());
-	window.display();
-}
-
-
 Color updateBatColor(int& score)
 {
 
@@ -326,27 +130,237 @@ Color updateBatColor(int& score)
 
 void setScreenText(RenderWindow& window, int& scoreTarget)
 {
-	controls.setFont(font);
-	controls.setCharacterSize(45);
-	controls.setFillColor(Color::White);
-	controls.setPosition(25, 3);
-	controls.setString("'esc' :  Quit                       |      'R' :  Restart");
+	ps.controls.setFont(ps.font);
+	ps.controls.setCharacterSize(45);
+	ps.controls.setFillColor(Color::White);
+	ps.controls.setPosition(25, 3);
+	ps.controls.setString("'esc' :  Quit                       |      'R' :  Restart");
 
-	target.setFont(font);
-	target.setCharacterSize(45);
-	target.setFillColor(Color::White);
-	target.setPosition(window.getSize().x - 150, 3);
-	target.setString("target  :  " + std::to_string(scoreTarget));
+	ps.target.setFont(ps.font);
+	ps.target.setCharacterSize(45);
+	ps.target.setFillColor(Color::White);
+	ps.target.setPosition(window.getSize().x - 150, 3);
+	ps.target.setString("target  :  " + std::to_string(scoreTarget));
 
-	scoreHud.setFont(font);
-	scoreHud.setCharacterSize(75);
-	scoreHud.setFillColor(Color::White);
-	scoreHud.setPosition(25, 10);
-	scoreHud.setString("Score: " + std::to_string(pg.score));
+	ps.scoreHud.setFont(ps.font);
+	ps.scoreHud.setCharacterSize(75);
+	ps.scoreHud.setFillColor(Color::White);
+	ps.scoreHud.setPosition(25, 10);
+	ps.scoreHud.setString("Score: " + std::to_string(pg.score));
 
-	livesHud.setFont(font);
-	livesHud.setCharacterSize(75);
-	livesHud.setFillColor(Color::White);
-	livesHud.setPosition(165, 10);
-	livesHud.setString("     |   Lives: " + std::to_string(pg.lives));
+	ps.livesHud.setFont(ps.font);
+	ps.livesHud.setCharacterSize(75);
+	ps.livesHud.setFillColor(Color::White);
+	ps.livesHud.setPosition(165, 10);
+	ps.livesHud.setString("     |   Lives: " + std::to_string(pg.lives));
 }
+
+
+void showGameState()
+{
+
+
+	ps.gameStatus.setFont(ps.font);
+	ps.gameStatus.setCharacterSize(300);
+	ps.gameStatus.setFillColor(Color::White);
+	ps.gameStatus.setPosition((window.getSize().x / 3) + 70, (window.getSize().y / 5) - 100);
+
+	ps.gameoverText.setFont(ps.font);
+	ps.gameoverText.setCharacterSize(70);
+	ps.gameoverText.setFillColor(Color::White);
+	ps.gameoverText.setString("GAME OVER");
+
+	if (pg.score >= pg.scoreTarget)
+	{
+		ps.gameStatuscontent = "You Won!";
+		ps.gameoverText.setPosition(ps.gameStatus.getPosition().x + 185, ps.gameStatus.getPosition().y + 300);
+		pg.gameover = true;
+	}
+	else
+	{
+		ps.gameStatuscontent = "You Lost";
+		//to properly align it
+		ps.gameoverText.setPosition(ps.gameStatus.getPosition().x + 160, ps.gameStatus.getPosition().y + 300);
+		pg.gameover = true;
+	}
+
+	std::stringstream gameStatusStream;
+	gameStatusStream << ps.gameStatuscontent;
+	ps.gameStatus.setString(gameStatusStream.str());
+
+
+
+}
+
+
+
+void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
+{
+
+	Time dt = clock.restart();
+
+	//update ball frames
+	int value = ball.update(dt, window, bat);
+	pg.ballPos_horizontal = ball.getPosition().left + ball.getPosition().width;
+	pg.ballPos_vertical = ball.getPosition().top + ball.getPosition().height;
+	pg.ball_toUp = ball.isBalltoUp();
+
+	if (pg.gameover == false)
+	{
+		//update bat frames
+		bat.update(dt, window, updateBatColor(pg.score));
+
+		//if ball hits bottom wall
+		if (value == -1)
+			pg.loseLive = true;
+		else if (value == 1)
+			pg.addScore = true;
+
+
+		if (pg.loseLive == true && pg.ballPos_vertical < pg.windowY)
+		{
+			pg.lives -= 1;
+			if (pg.score >= 250)
+			{
+				pg.score -= 250;
+			}
+			else
+			{
+				pg.score = 0;
+			}
+
+			pg.loseLive = false;
+		}
+
+
+		//in order to avoid increasing score up to thousands with a single hit, we must check that the ball hit the bat and [[[ no longer intersects with it ]]]
+		if (pg.addScore == true && ball.getPosition().intersects(bat.getPosition()) == false)
+		{
+			pg.score += 430;
+			pg.addScore = false;
+
+		}
+		std::stringstream scoreStream;
+		scoreStream << "Score: " << pg.score;
+		ps.scoreHud.setString(scoreStream.str());
+
+		std::stringstream livesStream;
+		livesStream << "     |   Lives: " << pg.lives;
+		ps.livesHud.setString(livesStream.str());
+	}
+
+
+
+
+}
+
+
+void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
+void showGameState();
+Color updateBatColor(int& score);
+void setScreenText(RenderWindow& window, int& scoreTarget);
+void runScript();
+
+
+int main()
+{
+	
+	vector<VideoMode> modes = VideoMode::getFullscreenModes();
+	int i = 0;
+	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
+
+	VideoMode vm = vm.getFullscreenModes()[i];
+	window.create(vm, "Pong Game", Style::None);
+	//window.setFramerateLimit(60);
+
+	Clock clock;
+	Music bgMusic;
+	bgMusic.openFromFile(".\\resources\\background_music.wav");
+	bgMusic.setLoop(true);
+	bgMusic.setVolume(0);
+	bgMusic.play();
+
+	bat = new Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	ball = new Ball(window.getSize().x / 2 - 100, window.getSize().y - 300);
+
+
+	//Update pong details
+	pg.windowX = window.getSize().x;
+	pg.windowY = window.getSize().y;
+	pg.batWidth = bat->getPosition().width;
+	pg.batY = bat->getPosition().top;
+
+	ps.font.loadFromFile(".\\resources\\game_over.ttf");
+	pg.addScore = false;
+	pg.loseLive = false;
+	setScreenText(window, pg.scoreTarget);
+
+
+	//run python script here
+	//thread runscript_t(runScript);
+
+
+	while (window.isOpen())
+	{
+		window.clear();
+
+		//handle player input
+		Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == Event::Closed)
+				window.close();
+
+		}
+
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			pg.gameover = true;
+			window.close();
+		}
+
+		if (Keyboard::isKeyPressed(Keyboard::R))
+		{
+			resetGame();
+		}
+
+
+		updateGameValues(window, clock, *bat, *ball);
+		
+		//when game ends
+		if (pg.lives == 0 || pg.score > pg.scoreTarget)
+		{
+			showGameState();
+			window.draw(ps.gameStatus);
+			window.draw(ps.gameoverText);
+		}
+
+
+		window.draw(ps.target);
+		window.draw(ps.controls);
+		window.draw(ps.scoreHud);
+		window.draw(ps.livesHud);
+		window.draw(bat->getShape());
+		window.draw(ball->getShape());
+		window.display();
+	}
+
+	//runscript_t.join();
+
+	delete bat;
+	delete ball;
+	return 0;
+}
+
+
+void runScript()
+{
+	//initialize Python interpreter
+	py::scoped_interpreter guard{};
+	py::module::import("Agent");
+}
+
+
+
+
+
