@@ -54,7 +54,7 @@ void resetGame()
 {
 	//game restarts
 	pg.gameover = false;
-	ball->resetBall(window.getSize().x / 2, 10);
+	ball->resetBall(window.getSize().x / 2 / 2, 10);
 	bat->resetBat(window.getSize().x / 2 - 100);
 	pg.lives = 5;
 	pg.score = 0;
@@ -189,8 +189,7 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 		if (pg.gameover == false)
 		{
 			//update bat frames
-			bat.update(dt, window, updateBatColor(pg.score));
-			//std::cout << bat.getPosition().left << "\n";
+			//bat.update(dt, window, updateBatColor(pg.score));
 
 			//if ball hits bottom wall
 			if (value == -1)
