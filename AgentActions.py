@@ -65,8 +65,8 @@ def mapColumns():
         #print(virtual_columns[vColumn])
         
 
-def isColumnActivated(ac_index):
-    if actual_columns[ac_index][0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= actual_columns[ac_index][1]:
+def isColumnActivated(actualColumn):
+    if actualColumn[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= actualColumn[1]:
         return True
     else:
         return False
@@ -79,16 +79,6 @@ def isSensorActivated():
     else:
         return False
 
-
-def performAction(action_index):
-
-    vColumn = virtual_columns[action_index] 
-
-    for ac in actual_columns:
-        if vColumn[0] <= ac[0] and ac[1] <= vColumn[1]:
-            if isColumnActivated(actual_columns.index(ac)):
-                print(move(ac[0]))
-                break
 
 
 def findVirtualColumn():
@@ -103,4 +93,5 @@ def findVirtualColumn():
 # ================================================
 countColumns()
 mapColumns()
-performAction(6)
+
+

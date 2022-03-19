@@ -168,6 +168,10 @@ int Ball::update(Time dt, RenderWindow& window, Bat bat)
 }
 
 
+bool Ball::isBalltoUp()
+{
+	return toUp;
+}
 void Ball::resetBall(float startX, float startY)
 {
 	c_position.x = startX;

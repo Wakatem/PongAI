@@ -12,8 +12,9 @@ Bat::Bat(std::string name) {
 Bat::Bat(float startX, float startY) {
 	m_position.x = startX;
 	m_position.y = startY;
-	m_Shape.setSize(sf::Vector2f(200, 5));
+	m_Shape.setSize(sf::Vector2f(130, 5));
 	m_Shape.setPosition(m_position);
+	startingX = startX;
 }
 
 sf::FloatRect Bat::getPosition()
@@ -54,14 +55,27 @@ void Bat::stopRight()
 void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 {
 	m_Shape.setFillColor(color);
+	int startingPoint = (int)this->getPosition().left;
+	int endingPoint = (int)this->getPosition().left + (int)this->getPosition().width;
 
-	if (startingX == this->getPosition().left)
+
+	
+	if (startingPoint == startingX)
 		positionUpdated = true;
 
-	if (!positionUpdated)
-	{
+	else{
+		//go to right
+		if (startingPoint < startingX)
+		{
+			calcPos = m_position.x + m_Speed * dt.asSeconds();
+			if (calcPos + this->getPosition().width < window.getSize().x)
+			{
+				m_position.x = calcPos;
+			}
+		}
+
 		//go to left
-		if (startingX < this->getPosition().left)
+		if (startingX < startingPoint)
 		{
 			calcPos = m_position.x - m_Speed * dt.asSeconds();
 			if (calcPos > 0)
@@ -70,15 +84,7 @@ void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 			}
 		}
 
-		//go to right
-		else if (this->getPosition().left < startingX)
-		{
-			calcPos = m_position.x + m_Speed * dt.asSeconds();
-			if (calcPos + this->getPosition().width < window.getSize().x)
-			{
-				m_position.x = calcPos;
-			}
-		}
+
 	}
 
 	m_Shape.setPosition(m_position);
@@ -87,10 +93,10 @@ void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 
 
 
-void Bat::moveTo(float startingX)
+void Bat::moveTo(int starting_x)
 {
 
-	this->startingX = startingX;
+	startingX = starting_x;
 	this->positionUpdated = false;
 	
 }
