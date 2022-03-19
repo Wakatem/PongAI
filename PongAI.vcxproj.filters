@@ -55,9 +55,9 @@
     </Font>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ai.py">
+    <None Include="Agent.py">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="AgentActions.py" />
+    <None Include="AgentHelper.py" />
   </ItemGroup>
 </Project>

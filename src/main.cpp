@@ -100,6 +100,7 @@ int main()
 
 	VideoMode vm = vm.getFullscreenModes()[i];
 	window.create(vm, "Pong Game", Style::Default);
+	//window.setFramerateLimit(60);
 
 	Clock clock;
 	Music bgMusic;
@@ -168,7 +169,7 @@ void runScript()
 {
 	//initialize Python interpreter
 	py::scoped_interpreter guard{};
-	py::module::import("ai");
+	py::module::import("Agent");
 }
 
 

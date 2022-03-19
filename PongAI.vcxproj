@@ -39,8 +39,8 @@
     <Font Include="resources\game_over.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AgentActions.py" />
-    <None Include="ai.py" />
+    <None Include="AgentHelper.py" />
+    <None Include="Agent.py" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

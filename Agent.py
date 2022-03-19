@@ -1,4 +1,4 @@
-from AgentActions import *
+from AgentHelper import *
 import numpy as np
 import random 
 
@@ -9,9 +9,8 @@ actions_space = []
 QTable = np.zeros((32,10))
 
 learningRate = 0.1
-discountRate = 0
-explorationRate = 1
-exploration_decay_rate = 0.001   
+discountRate = 0.99
+exploration_decay_rate = 0.01   
 min_exploration_rate = 0.01
 max_exploration_rate = 1
 
@@ -39,8 +38,6 @@ def defineSpaces():
     #define actions space
     actions_space = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"]
 
-    
-
 
 def determineState():
     livesLeft = (pd.lives != 0)
@@ -64,7 +61,6 @@ def determineState():
                     return states_space.index(state) #lost state
 
 
-
 def findState(livesLeft, scoreLeft, sensorActivated, new_state_column, ball_toUp):
       for state in states_space:
           if livesLeft is state[0]  and  scoreLeft is state[1]  and  sensorActivated is state[2]  and  new_state_column is state[3] and ball_toUp is state[4]:
@@ -80,7 +76,6 @@ def selectAction(explore, state):
         return np.argmax(QTable[state,:]) #return exploited action index
 
  
-
 def performAction(state, action):
     reward = 0
     new_state = 0
@@ -105,10 +100,10 @@ def performAction(state, action):
     
     #define reward
     if sensorActivated is True:
-        reward = -100
+        reward = -1
     
     else:
-        reward = 0 if ball_toUp is True else 100
+        reward = 0 if ball_toUp is True else 1
 
 
     new_state = findState(livesLeft, scoreLeft, sensorActivated, newColumn, ball_toUp)
@@ -117,18 +112,22 @@ def performAction(state, action):
     return (new_state, reward, gameover)
 
 
+
 def QLearning():
+    er = 0
+    totalEpisodesRewards = 0
+
     for episode in range(numofEpisodes):
-        print(episode)
-        pd.resetGame()
+        print('ep : ', episode)
+        resetGame()
         state = determineState()
         epRewards = 0
 
-        current_rewards = 0
+
         while True:
             explorationRateThreshold = random.uniform(0,1)
             action = 0
-            if explorationRateThreshold > explorationRate:
+            if explorationRateThreshold > er:
                 action = selectAction(False, state)     #exploit
             else:
                 action = selectAction(True, state)      #explore
@@ -141,12 +140,14 @@ def QLearning():
 
             #update current state and rewards per ep
             state = new_state
-            epRewards += rewards
-
+            epRewards += reward
             
             if(gameover is True): break
 
-        explorationRate = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
+        #explorationRate += 1
+        totalEpisodesRewards += epRewards
+        #print(QTable)
+        print()
 
             
 
@@ -154,8 +155,7 @@ def QLearning():
 #/////////////////////////////////////////////////////////////////////////
  
 defineSpaces()
-Qlearning()
-
+QLearning()
 
 
 
