@@ -77,19 +77,13 @@ def selectAction(QTable, explore, state):
         return (True, random.randint(0,9)) #return explored action index
     else:
         highest = 0.0
-        ii = 0
+        actionIndex = 0
         arr = QTable[state,:].tolist()
         for j in arr:
             if j > highest:
                 highest = float(j)
-                ii = arr.index(float(j))
-            print('state is', state)
-            #print(states_space[ii])
-            #print(arr)
-            #print(ii)
-            #print();print();
-        
-        return (False,  ii) #return exploited action index
+                actionIndex = arr.index(float(j))
+        return (False,  actionIndex) #return exploited action index
 
  
 def performAction(action):

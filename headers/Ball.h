@@ -22,7 +22,7 @@ public:
 	FloatRect getPosition();
 	CircleShape getShape();
 	void checkSides(Time dt, RenderWindow& window, Bat bat); //check all four walls, including the bat
-	void move(Time dt);
+	void move(Time dt, RenderWindow& window);
 	int update(Time dt, RenderWindow& window, Bat bat);
 	bool isBalltoUp();
 	void resetBall(float startX, float startY);

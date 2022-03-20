@@ -84,7 +84,7 @@ void Ball::checkSides(Time dt, RenderWindow& window, Bat bat)
 
 
 
-void Ball::move(Time dt)
+void Ball::move(Time dt, RenderWindow& window)
 {
 	//check if the ball hit the bat, fromwhere, and rebound it appropiately
 	if (collisionStatus == 1)
@@ -146,7 +146,7 @@ int Ball::update(Time dt, RenderWindow& window, Bat bat)
 {
 
 	checkSides(dt, window, bat);
-	move(dt);
+	move(dt, window);
 	circle.setPosition(c_position);
 
 	// if ball hits the bottom wall

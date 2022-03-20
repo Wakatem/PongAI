@@ -379,7 +379,16 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 
 		//update ball frames
 		int value = ball.update(dt, window, bat);
-		pg.ballPos_horizontal = (int) (ball.getPosition().left + ball.getPosition().width);
+
+		if (ball.getPosition().left + ball.getPosition().width < 0)
+			pg.ballPos_horizontal = 0;
+
+		else if (ball.getPosition().left + ball.getPosition().width > window.getSize().x)
+			pg.ballPos_horizontal = (int)window.getSize().x;
+		else
+			pg.ballPos_horizontal = (int)(ball.getPosition().left + ball.getPosition().width);
+		
+
 		pg.ballPos_vertical = (int) (ball.getPosition().top + ball.getPosition().height);
 		pg.ball_toUp = ball.isBalltoUp();
 
@@ -438,7 +447,7 @@ void pythonThread()
 {
 	bool errorThrown = false;
 
-
+	py::scoped_interpreter guard{};
 	do
 	{
 
@@ -451,7 +460,7 @@ void pythonThread()
 				stratStream << "     |   Strategy:    " << pg.strategy;
 				ps.strategyHud.setString(stratStream.str());
 
-				py::scoped_interpreter guard{};
+				
 				//run script
 				py::module::import("Agent");
 

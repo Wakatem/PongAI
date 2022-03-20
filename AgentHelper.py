@@ -1,5 +1,6 @@
 from PongGame import PongDetails as pd
 from PongGame import *
+import numpy as np
 
 actual_columns =  []        #columns found based on screen width
 virtual_columns = []        #10 virtual columns
@@ -89,7 +90,11 @@ def findVirtualColumn():
     print('unkown position, ball at: ', pd.ballPos_horizontal)
 
      
-            
+def writeQTable(QTable):
+    QTable.tofile(open("qtable.txt", 'w'), sep=',')
+
+def readQTable():
+    return np.fromfile(open("qtable.txt", 'w'), dtype=float, count=-1, sep=',')
 
 
 # ================================================

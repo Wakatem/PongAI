@@ -1,9 +1,14 @@
 from AgentBehaviours import *
+importQTable = False
 
-numofEpisodes = 1000
 
-QTable = np.zeros((42,10))
+if importQTable is True:
+    QTable = readQTable()
+    pass
+else:
+    QTable = np.zeros((42,10))
 
+numofEpisodes = 10
 learningRate = 1
 discountRate = 0
 exploration_decay_rate = 0.0001   
@@ -51,10 +56,12 @@ for episode in range(numofEpisodes):
     er = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
     totalEpisodesRewards += epRewards
     
-    #print();print();
-    #print(QTable)
+    
 
-            
+#after N episodes, save the qtable
+writeQTable(QTable)
+    
+    
 
 
 
