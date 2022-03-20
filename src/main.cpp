@@ -24,7 +24,6 @@ RenderWindow window;
 bool scriptRunning = false;
 bool scriptStopped = true;
 bool gameStarted = false;
-bool closeGame = false;
 
 
 
@@ -58,6 +57,7 @@ struct PongDetails
 	string strategy = "[Agent not online]";
 	string strategyResult;
 	float er;
+	bool closeGame = false;
 }pg;
 
 
@@ -128,7 +128,8 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("ballIsBackUp", &pg.ballIsBackUp)
 		.def_readonly_static("ball_toUp", &pg.ball_toUp)
 		.def_readonly_static("ball_toLeft", &pg.ball_toLeft)
-		.def_readonly_static("gameover", &pg.gameover);
+		.def_readonly_static("gameover", &pg.gameover)
+		.def_readonly_static("closeGame", &pg.closeGame);
 
 	m.def("move", &move);
 	m.def("updateEpisodes", &updateEpisodes);
@@ -325,7 +326,7 @@ int main()
 			if (event.type == Event::Closed)
 			{
 				pg.gameover = true;
-				closeGame = true;
+				pg.closeGame = true;
 				window.close();
 			}
 		}
@@ -333,7 +334,7 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
 		{
 			pg.gameover = true;
-			closeGame = true;
+			pg.closeGame = true;
 			window.close();
 		}
 
@@ -466,10 +467,9 @@ void pythonThread()
 	bool errorThrown = false;
 
 
-	do
+	while(true)
 	{
-
-		if (!closeGame)
+		if (!pg.closeGame)
 		{
 			if (scriptRunning)
 			{
@@ -478,28 +478,26 @@ void pythonThread()
 				stratStream << "     |   Strategy:    " << pg.strategy;
 				ps.strategyHud.setString(stratStream.str());
 
-				
+
 				//run script
 				py::scoped_interpreter guard{};
 				py::module::import("Agent");
 				scriptRunning = false;
+
 			}
 			else
 			{
-				errorThrown = true;
-				scriptRunning = false;
-
 				pg.strategy = "[Agent not online]";
 				std::stringstream stratStream;
 				stratStream << "     |   Strategy:    " << pg.strategy;
 				ps.strategyHud.setString(stratStream.str());
 			}
+
 		}
 
 		else
 			break;
-
-	} while (errorThrown || !scriptRunning);
+	}
 
 
 

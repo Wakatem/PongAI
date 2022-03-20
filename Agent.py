@@ -1,6 +1,7 @@
 from AgentBehaviours import *
 
-importQTable = False
+continueTraining = True
+importQTable = True
 
 if importQTable is True:
     QTable = readQTable()
@@ -8,13 +9,19 @@ if importQTable is True:
 else:
     QTable = np.zeros((42,10))
 
-numofEpisodes = 500
+
+if continueTraining is True:
+    numofEpisodes, currentEp, er = readTraining();
+else:
+    numofEpisodes = 500
+    currentEp = 0
+    er = 1
+
 learningRate = 1
 discountRate = 0
-exploration_decay_rate = 0.01   
+exploration_decay_rate = 0.001   
 min_exploration_rate = 0.01
 max_exploration_rate = 1
-er = 1.0
 
 
 #Q Learning Algorithm
@@ -23,7 +30,7 @@ totalEpisodesRewards = 0
 
 try:
     for episode in range(numofEpisodes):
-        updateEpisodes(episode+1, er)
+        updateEpisodes(currentEp+1, er)
         resetGame()
         state = determineState()    #state index
         epRewards = 0
@@ -53,12 +60,16 @@ try:
             epRewards += reward
     
     
-    
+            if pd.closeGame is True:
+                break
         er = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
         totalEpisodesRewards += epRewards
-        if episode % 10 == 0:
+        if pd.closeGame is True:
             writeQTable(QTable)
-            #print(QTable)
+            break
+        else:
+            if episode % 10 == 0:
+                writeQTable(QTable)
 
 except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

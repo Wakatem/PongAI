@@ -109,7 +109,19 @@ def isSensorActivated():
     return False
 
 
-     
+def readTraining():
+    training = open('training.txt', 'r')
+
+    numofEpisodes = int(training.readline())
+    currentEp = int(training.readline())
+    er = float(training.readline())
+
+    training.close()
+    return (numofEpisodes, currentEp, er)
+
+def writeTraining(trainingData):
+    np.savetxt('training.txt', trainingData, delimiter=',')
+
 def writeQTable(QTable):
     np.savetxt('qtable.txt', QTable, delimiter=',')
 
