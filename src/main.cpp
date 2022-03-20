@@ -21,11 +21,15 @@ Bat* bat;
 Ball* ball;
 RenderWindow window;
 
+bool gameStarted = false;
+bool scriptRunning = false;
+bool scriptStopped = true;
+
 
 
 struct PongScreen
 {
-	Text scoreHud, livesHud, controls, target, gameStatus, gameoverText;
+	Text scoreHud, livesHud, controls, target, gameStatus, gameoverText, episodesHud, strategyHud;
 	Font font;
 	string gameStatuscontent;
 }ps;
@@ -43,10 +47,12 @@ struct PongDetails
 	float windowY;
 	float batWidth;
 	float batY;					//y value of bat
-	float ballPos_vertical;		//ball boundraies (for vertical comparison)
-	float ballPos_horizontal;	//ball boundraies (for horizontal comparison)
+	int ballPos_vertical;		//ball boundraies (for vertical comparison)
+	int ballPos_horizontal;	//ball boundraies (for horizontal comparison)
 	bool ball_toUp = false;
 	bool gameover = false;
+	int episodes;
+	string strategy = "[Agent not online]";
 
 }pg;
 
@@ -56,10 +62,27 @@ void move(int startingX)
 	bat->moveTo(startingX);
 }
 
+void updateEpisodes(int ep)
+{
+	pg.episodes = ep;
+	std::stringstream epStream;
+	epStream << "     |       Episodes:   " << pg.episodes;
+	ps.episodesHud.setString(epStream.str());
+}
+
+void updateActionStrategy(string strategy)
+{
+	pg.strategy = strategy;
+	std::stringstream stratStream;
+	stratStream << "     |   Strategy:    " << pg.strategy;
+	ps.strategyHud.setString(stratStream.str());
+}
+
 void resetGame()
 {
 	//game restarts
 	pg.gameover = false;
+	gameStarted = true;
 	ball->resetBall(window.getSize().x / 2 / 2, 10);
 	bat->resetBat(window.getSize().x / 2 - 100);
 	pg.lives = 5;
@@ -83,6 +106,8 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("gameover", &pg.gameover);
 
 	m.def("move", &move);
+	m.def("updateEpisodes", &updateEpisodes);
+	m.def("updateActionStrategy", &updateActionStrategy);
 	m.def("resetGame", &resetGame);
 
 }
@@ -128,19 +153,19 @@ Color updateBatColor(int& score)
 
 }
 
-void setScreenText(RenderWindow& window, int& scoreTarget)
+void setScreenText(RenderWindow& window)
 {
 	ps.controls.setFont(ps.font);
 	ps.controls.setCharacterSize(45);
 	ps.controls.setFillColor(Color::White);
 	ps.controls.setPosition(25, 3);
-	ps.controls.setString("'esc' :  Quit                       |      'R' :  Restart");
+	ps.controls.setString("'esc' :  Quit                       |      'R' :  Restart                                                                          |      'P' : Wake Agent Up");
 
 	ps.target.setFont(ps.font);
 	ps.target.setCharacterSize(45);
 	ps.target.setFillColor(Color::White);
 	ps.target.setPosition(window.getSize().x - 150, 3);
-	ps.target.setString("target  :  " + std::to_string(scoreTarget));
+	ps.target.setString("target  :  " + std::to_string(pg.scoreTarget));
 
 	ps.scoreHud.setFont(ps.font);
 	ps.scoreHud.setCharacterSize(75);
@@ -153,13 +178,23 @@ void setScreenText(RenderWindow& window, int& scoreTarget)
 	ps.livesHud.setFillColor(Color::White);
 	ps.livesHud.setPosition(165, 10);
 	ps.livesHud.setString("     |   Lives: " + std::to_string(pg.lives));
+
+	ps.episodesHud.setFont(ps.font);
+	ps.episodesHud.setCharacterSize(75);
+	ps.episodesHud.setFillColor(Color::White);
+	ps.episodesHud.setPosition(315, 10);
+	ps.episodesHud.setString("     |           Episodes:   " + std::to_string(pg.episodes));
+
+	ps.strategyHud.setFont(ps.font);
+	ps.strategyHud.setCharacterSize(75);
+	ps.strategyHud.setFillColor(Color::White);
+	ps.strategyHud.setPosition(585, 10);
+	ps.strategyHud.setString("     |   Strategy:   " + pg.strategy);
 }
 
 
 void showGameState()
 {
-
-
 	ps.gameStatus.setFont(ps.font);
 	ps.gameStatus.setCharacterSize(300);
 	ps.gameStatus.setFillColor(Color::White);
@@ -194,83 +229,20 @@ void showGameState()
 
 
 
-void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
-{
-
-	Time dt = clock.restart();
-
-	//update ball frames
-	int value = ball.update(dt, window, bat);
-	pg.ballPos_horizontal = ball.getPosition().left + ball.getPosition().width;
-	pg.ballPos_vertical = ball.getPosition().top + ball.getPosition().height;
-	pg.ball_toUp = ball.isBalltoUp();
-
-	if (pg.gameover == false)
-	{
-		//update bat frames
-		bat.update(dt, window, updateBatColor(pg.score));
-
-		//if ball hits bottom wall
-		if (value == -1)
-			pg.loseLive = true;
-		else if (value == 1)
-			pg.addScore = true;
-
-
-		if (pg.loseLive == true && pg.ballPos_vertical < pg.windowY)
-		{
-			pg.lives -= 1;
-			if (pg.score >= 250)
-			{
-				pg.score -= 250;
-			}
-			else
-			{
-				pg.score = 0;
-			}
-
-			pg.loseLive = false;
-		}
-
-
-		//in order to avoid increasing score up to thousands with a single hit, we must check that the ball hit the bat and [[[ no longer intersects with it ]]]
-		if (pg.addScore == true && ball.getPosition().intersects(bat.getPosition()) == false)
-		{
-			pg.score += 430;
-			pg.addScore = false;
-
-		}
-		std::stringstream scoreStream;
-		scoreStream << "Score: " << pg.score;
-		ps.scoreHud.setString(scoreStream.str());
-
-		std::stringstream livesStream;
-		livesStream << "     |   Lives: " << pg.lives;
-		ps.livesHud.setString(livesStream.str());
-	}
-
-
-
-
-}
-
 
 void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball);
-void showGameState();
-Color updateBatColor(int& score);
-void setScreenText(RenderWindow& window, int& scoreTarget);
-void runScript();
+void pythonThread();
 
 
 int main()
 {
-	
+
 	vector<VideoMode> modes = VideoMode::getFullscreenModes();
 	int i = 0;
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	window.create(vm, "Pong Game", Style::None);
+	window.create(vm, "Pong Game", Style::Default);
 	//window.setFramerateLimit(60);
 
 	Clock clock;
@@ -280,8 +252,8 @@ int main()
 	bgMusic.setVolume(0);
 	bgMusic.play();
 
+	ball = new Ball(window.getSize().x / 2 - 100, 10);
 	bat = new Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
-	ball = new Ball(window.getSize().x / 2 - 100, window.getSize().y - 300);
 
 
 	//Update pong details
@@ -293,11 +265,13 @@ int main()
 	ps.font.loadFromFile(".\\resources\\game_over.ttf");
 	pg.addScore = false;
 	pg.loseLive = false;
-	setScreenText(window, pg.scoreTarget);
+	setScreenText(window);
 
 
 	//run python script here
-	//thread runscript_t(runScript);
+	thread pythonThread_t(pythonThread);
+
+	thread updateGameValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(*bat), std::ref(*ball));
 
 
 	while (window.isOpen())
@@ -324,8 +298,11 @@ int main()
 			resetGame();
 		}
 
+		if (Keyboard::isKeyPressed(Keyboard::P))
+		{
+			scriptRunning = true;
+		}
 
-		updateGameValues(window, clock, *bat, *ball);
 		
 		//when game ends
 		if (pg.lives == 0 || pg.score > pg.scoreTarget)
@@ -335,17 +312,20 @@ int main()
 			window.draw(ps.gameoverText);
 		}
 
-
+		
 		window.draw(ps.target);
 		window.draw(ps.controls);
 		window.draw(ps.scoreHud);
 		window.draw(ps.livesHud);
+		window.draw(ps.episodesHud);
+		window.draw(ps.strategyHud);
 		window.draw(bat->getShape());
 		window.draw(ball->getShape());
 		window.display();
 	}
 
-	//runscript_t.join();
+	pythonThread_t.join();
+	updateGameValues_t.join();
 
 	delete bat;
 	delete ball;
@@ -353,11 +333,108 @@ int main()
 }
 
 
-void runScript()
+
+void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 {
-	//initialize Python interpreter
-	py::scoped_interpreter guard{};
-	py::module::import("Agent");
+
+	while (window.isOpen())
+	{
+		
+		Time dt = clock.restart();
+
+		//update ball frames
+		int value = ball.update(dt, window, bat);
+		pg.ballPos_horizontal = (int) (ball.getPosition().left + ball.getPosition().width);
+		pg.ballPos_vertical = (int) (ball.getPosition().top + ball.getPosition().height);
+		pg.ball_toUp = ball.isBalltoUp();
+
+		if (pg.gameover == false)
+		{
+			//update bat frames
+			bat.update(dt, window, updateBatColor(pg.score));
+
+			//if ball hits bottom wall
+			if (value == -1)
+				pg.loseLive = true;
+			else if (value == 1)
+				pg.addScore = true;
+
+
+			if (pg.loseLive == true && pg.ballPos_vertical < pg.windowY)
+			{
+				pg.lives -= 1;
+				if (pg.score >= 250)
+				{
+					pg.score -= 250;
+				}
+				else
+				{
+					pg.score = 0;
+				}
+
+				pg.loseLive = false;
+			}
+
+
+			//in order to avoid increasing score up to thousands with a single hit, we must check that the ball hit the bat and [[[ no longer intersects with it ]]]
+			if (pg.addScore == true && ball.getPosition().intersects(bat.getPosition()) == false)
+			{
+				pg.score += 430;
+				pg.addScore = false;
+
+			}
+			std::stringstream scoreStream;
+			scoreStream << "Score: " << pg.score;
+			ps.scoreHud.setString(scoreStream.str());
+
+			std::stringstream livesStream;
+			livesStream << "     |   Lives: " << pg.lives;
+			ps.livesHud.setString(livesStream.str());
+		}
+
+	}
+
+
+}
+
+
+
+void pythonThread()
+{
+	bool errorThrown = false;
+
+	
+
+	do
+	{
+		if (scriptRunning)
+		{
+			pg.strategy = "{Starting...}";
+			std::stringstream stratStream;
+			stratStream << "     |   Strategy:    " << pg.strategy;
+			ps.strategyHud.setString(stratStream.str());
+
+			py::scoped_interpreter guard{};
+			//run script
+			py::module::import("Agent");
+
+			scriptRunning = false;
+		}
+		else
+		{
+			errorThrown = true;
+			scriptRunning = false;
+
+			pg.strategy = "[Agent not online]";
+			std::stringstream stratStream;
+			stratStream << "     |   Strategy:    " << pg.strategy;
+			ps.strategyHud.setString(stratStream.str());
+		}
+
+	} while (errorThrown || !scriptRunning);
+
+
+
 }
 
 

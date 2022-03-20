@@ -2,7 +2,7 @@ from PongGame import PongDetails as pd
 from PongGame import *
 
 actual_columns =  []        #columns found based on screen width
-virtual_columns = [] #10 virtual columns
+virtual_columns = []        #10 virtual columns
 
 
 def countColumns():
@@ -85,7 +85,8 @@ def findVirtualColumn():
     for vc in virtual_columns:
         if vc[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= vc[1]:
             return virtual_columns.index(vc)
-    
+
+    print(pd.ballPos_horizontal)
 
             
 

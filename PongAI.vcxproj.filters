@@ -59,5 +59,6 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="AgentHelper.py" />
+    <None Include="AgentBehaviours.py" />
   </ItemGroup>
 </Project>
