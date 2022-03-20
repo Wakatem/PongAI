@@ -21,9 +21,9 @@ Bat* bat;
 Ball* ball;
 RenderWindow window;
 
-bool gameStarted = false;
 bool scriptRunning = false;
 bool scriptStopped = true;
+bool gameStarted = false;
 bool closeGame = false;
 
 
@@ -49,8 +49,10 @@ struct PongDetails
 	float batWidth;
 	float batY;					//y value of bat
 	int ballPos_vertical;		//ball boundraies (for vertical comparison)
-	int ballPos_horizontal;	//ball boundraies (for horizontal comparison)
+	int ballPos_horizontal;		//ball boundraies (for horizontal comparison)
 	bool ball_toUp = false;
+	bool ball_toLeft = true;
+	bool ballIsBackUp;			
 	bool gameover = false;
 	int episodes;
 	string strategy = "[Agent not online]";
@@ -62,6 +64,11 @@ struct PongDetails
 void move(int startingX)
 {
 	bat->moveTo(startingX);
+}
+
+void updateIfBallIsBackUp(bool ballIsUp)
+{
+	pg.ballIsBackUp = ballIsUp;
 }
 
 void updateEpisodes(int ep, float er)
@@ -118,12 +125,15 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("batY", &pg.batY)
 		.def_readonly_static("ballPos_vertical", &pg.ballPos_vertical)
 		.def_readonly_static("ballPos_horizontal", &pg.ballPos_horizontal)
+		.def_readonly_static("ballIsBackUp", &pg.ballIsBackUp)
 		.def_readonly_static("ball_toUp", &pg.ball_toUp)
+		.def_readonly_static("ball_toLeft", &pg.ball_toLeft)
 		.def_readonly_static("gameover", &pg.gameover);
 
 	m.def("move", &move);
 	m.def("updateEpisodes", &updateEpisodes);
 	m.def("updateActionStrategy", &updateActionStrategy);
+	m.def("updateIfBallIsBackUp", &updateIfBallIsBackUp);
 	m.def("updateReward", &updateReward);
 	m.def("resetGame", &resetGame);
 
@@ -169,6 +179,7 @@ Color updateBatColor(int& score)
 	}
 
 }
+
 
 void setScreenText(RenderWindow& window)
 {
@@ -336,6 +347,12 @@ int main()
 			scriptRunning = true;
 		}
 
+		if (Keyboard::isKeyPressed(Keyboard::Left))    bat->moveLeft();
+		else                                           bat->stopLeft();
+
+
+		if (Keyboard::isKeyPressed(Keyboard::Right))   bat->moveRight();
+		else                                           bat->stopRight();
 		
 		//when game ends
 		if (pg.lives == 0 || pg.score > pg.scoreTarget)
@@ -391,6 +408,7 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 
 		pg.ballPos_vertical = (int) (ball.getPosition().top + ball.getPosition().height);
 		pg.ball_toUp = ball.isBalltoUp();
+		pg.ball_toLeft = ball.isBalltoLeft();
 
 		if (pg.gameover == false)
 		{
@@ -447,7 +465,7 @@ void pythonThread()
 {
 	bool errorThrown = false;
 
-	py::scoped_interpreter guard{};
+
 	do
 	{
 
@@ -462,8 +480,8 @@ void pythonThread()
 
 				
 				//run script
+				py::scoped_interpreter guard{};
 				py::module::import("Agent");
-
 				scriptRunning = false;
 			}
 			else

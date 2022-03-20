@@ -12,6 +12,7 @@ private:
 	bool m_MovingLeft = false;
 	int startingX;
 	int endingX;
+	bool agentPlaying = false;
 	float calcPos = 0.0;
 	bool positionUpdated = false;
 public:

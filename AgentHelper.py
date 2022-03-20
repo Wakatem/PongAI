@@ -1,10 +1,11 @@
 from PongGame import PongDetails as pd
 from PongGame import *
 import numpy as np
+import sys, os
 
 actual_columns =  []        #columns found based on screen width
 virtual_columns = []        #10 virtual columns
-
+previous_column_index = -1
 
 def countColumns():
     starting_x = 0
@@ -73,32 +74,50 @@ def isColumnActivated(actualColumn, ballPos):
         return False
 
 
- 
-def isSensorActivated():
-    if pd.ballPos_vertical > pd.batY:
-        return True
-    else:
-        return False
-
 
 
 def findVirtualColumn():
-    for vc in virtual_columns:
-        if vc[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= vc[1]:
-            return virtual_columns.index(vc)
+    #update ball's vertical position status on every frame
+    global previous_column_index
+    try:
+        if pd.ballPos_vertical > pd.batY:
+            updateIfBallIsBackUp(True)
+        for vc in virtual_columns:
+            if vc[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= vc[1]:
+                previous_column_index = virtual_columns.index(vc)
+                return virtual_columns.index(vc)
 
-    print('unkown position, ball at: ', pd.ballPos_horizontal)
+        if pd.ball_toLeft is True:
+            return previous_column_index - 1
+        else:
+            return previous_column_index + 1
+
+        print('unkown position, ball at: ', pd.ballPos_horizontal)
+    except:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+
+
+
+
+def isSensorActivated():
+    if pd.ballIsBackUp == True:
+        if pd.ballPos_vertical > pd.batY:
+            updateIfBallIsBackUp(False) #the ball now remains within the sensor until X timeframes
+            return True
+    return False
+
 
      
 def writeQTable(QTable):
-    QTable.tofile(open("qtable.txt", 'w'), sep=',')
+    np.savetxt('qtable.txt', QTable, delimiter=',')
 
 def readQTable():
-    return np.fromfile(open("qtable.txt", 'w'), dtype=float, count=-1, sep=',')
+    return np.loadtxt('qtable.txt', dtype=float, delimiter=',')
 
 
 # ================================================
 countColumns()
 mapColumns()
-
 

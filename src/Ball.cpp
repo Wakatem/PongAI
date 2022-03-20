@@ -172,6 +172,11 @@ bool Ball::isBalltoUp()
 {
 	return toUp;
 }
+
+bool Ball::isBalltoLeft()
+{
+	return toLeft;
+}
 void Ball::resetBall(float startX, float startY)
 {
 	c_position.x = startX;

@@ -25,5 +25,6 @@ public:
 	void move(Time dt, RenderWindow& window);
 	int update(Time dt, RenderWindow& window, Bat bat);
 	bool isBalltoUp();
+	bool isBalltoLeft();
 	void resetBall(float startX, float startY);
 };

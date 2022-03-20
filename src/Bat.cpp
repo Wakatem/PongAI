@@ -54,18 +54,60 @@ void Bat::stopRight()
 
 void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 {
-	m_Shape.setFillColor(color);
-	int startingPoint = (int)this->getPosition().left;
-	int endingPoint = (int)this->getPosition().left + (int)this->getPosition().width;
+	if (agentPlaying)
+	{
 
 
-	
-	if (startingPoint == startingX)
-		positionUpdated = true;
+		m_Shape.setFillColor(color);
+		int startingPoint = (int)this->getPosition().left;
+		int endingPoint = (int)this->getPosition().left + (int)this->getPosition().width;
 
-	else{
-		//go to right
-		if (startingPoint < startingX)
+
+
+		if (startingPoint == startingX)
+			positionUpdated = true;
+
+		else {
+			//go to right
+			if (startingPoint < startingX)
+			{
+				calcPos = m_position.x + m_Speed * dt.asSeconds();
+				if (calcPos + this->getPosition().width < window.getSize().x)
+				{
+					m_position.x = calcPos;
+				}
+			}
+
+			//go to left
+			if (startingX < startingPoint)
+			{
+				calcPos = m_position.x - m_Speed * dt.asSeconds();
+				if (calcPos > 0)
+				{
+					m_position.x = calcPos;
+				}
+			}
+
+
+		}
+	}
+
+	else
+	{
+		m_Shape.setFillColor(color);
+
+		if (m_MovingLeft)
+		{
+
+			calcPos = m_position.x - m_Speed * dt.asSeconds();
+			if (calcPos > 0)
+			{
+				m_position.x = calcPos;
+			}
+
+		}
+
+		if (m_MovingRight)
 		{
 			calcPos = m_position.x + m_Speed * dt.asSeconds();
 			if (calcPos + this->getPosition().width < window.getSize().x)
@@ -73,23 +115,11 @@ void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 				m_position.x = calcPos;
 			}
 		}
-
-		//go to left
-		if (startingX < startingPoint)
-		{
-			calcPos = m_position.x - m_Speed * dt.asSeconds();
-			if (calcPos > 0)
-			{
-				m_position.x = calcPos;
-			}
-		}
-
-
 	}
-
 	m_Shape.setPosition(m_position);
 
 }
+
 
 
 
@@ -98,7 +128,7 @@ void Bat::moveTo(int starting_x)
 
 	startingX = starting_x;
 	this->positionUpdated = false;
-	
+	agentPlaying = true;
 }
 
 void Bat::resetBat(float startX)

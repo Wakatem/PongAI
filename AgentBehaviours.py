@@ -36,8 +36,8 @@ def determineState(inputs=()):
     if len(inputs) == 0:
         livesLeft = (pd.lives != 0)
         scoreLeft = (pd.score < pd.scoreTarget)
-        sensorActivated = isSensorActivated()
-        vc = findVirtualColumn()
+        vc = findVirtualColumn() #1st
+        sensorActivated = isSensorActivated() #2nd
         ball_toUp = pd.ball_toUp
 
     #function used to find state
@@ -71,7 +71,6 @@ def determineState(inputs=()):
 
 
 
-
 def selectAction(QTable, explore, state):
     if explore is True:
         return (True, random.randint(0,9)) #return explored action index
@@ -86,50 +85,60 @@ def selectAction(QTable, explore, state):
         return (False,  actionIndex) #return exploited action index
 
  
-def performAction(action):
-    reward = 0
-    new_state = 0
-    gameover = 0
+def performAction(state, action):
 
-    vColumn = virtual_columns[action[1]] # column to go to
-    #print('go to ', vColumn)
+    try:
+        reward = 0
+        new_state = 0
+        gameover = 0
 
-    if action[0] == True:
-        move(random.randint(vColumn[0], vColumn[1]))
-    else:
-        ballPos = pd.ballPos_horizontal
-        for ac in actual_columns:
-                if vColumn[0] <= ac[0] and ac[1] <= vColumn[1]:
-                    if isColumnActivated(ac, ballPos):
-                        move(ac[0])
-                        break
-    
-
-    #observe the change in inputs
-    livesLeft = (pd.lives != 0)
-    scoreLeft = (pd.score < pd.scoreTarget)
-    sensorActivated = isSensorActivated()
-    newColumn = findVirtualColumn()
-    ball_toUp = pd.ball_toUp
+        vColumn = virtual_columns[action[1]] # column to go to
 
 
-    
-    #define reward
-    if sensorActivated is True:
-        reward = -1
-    
-    else:
-        reward = 0 if ball_toUp is True else 5
+        if action[0] == True:
+            move(random.randint(vColumn[0], vColumn[1]))
+        else:
+            ballPos = pd.ballPos_horizontal
+            for ac in actual_columns:
+                    if vColumn[0] <= ac[0] and ac[1] <= vColumn[1]:
+                        if isColumnActivated(ac, ballPos):
+                            move(ac[0])
+                            break
+        
+
+        #observe the change in inputs
+        livesLeft = (pd.lives != 0)
+        scoreLeft = (pd.score < pd.scoreTarget)
+        vc = findVirtualColumn() #1st
+        sensorActivated = isSensorActivated() #2nd
+        ball_toUp = pd.ball_toUp
 
 
-    new_state = determineState((action, livesLeft, scoreLeft, sensorActivated, newColumn, ball_toUp))
-    #print('action was: go to', action[1]+1)
-    #print('new state is: ', states_space[new_state])
-    #print();print();
-    gameover = pd.gameover
 
-    return (new_state, reward, gameover)
+        #define reward
+        if sensorActivated is True:
+            reward = -1
+        else:
+            if action[1] == states_space[state][3]:
+                if ball_toUp:
+                    reward = 0
+                else:
+                    reward = 5
 
+            else:
+                reward = 0
+
+
+        new_state = determineState((action, livesLeft, scoreLeft, sensorActivated, vc, ball_toUp))
+        #check if game is over
+        gameover = pd.gameover
+
+
+        return (new_state, reward, gameover)
+    except:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
 
 #////////////////////////////////////////
 defineSpaces()
