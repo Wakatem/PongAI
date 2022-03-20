@@ -65,8 +65,8 @@ def mapColumns():
         #print(virtual_columns[vColumn])
         
 
-def isColumnActivated(actualColumn):
-    if actualColumn[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= actualColumn[1]:
+def isColumnActivated(actualColumn, ballPos):
+    if actualColumn[0] <= ballPos and ballPos <= actualColumn[1]:
         return True
     else:
         return False
@@ -86,8 +86,9 @@ def findVirtualColumn():
         if vc[0] <= pd.ballPos_horizontal and pd.ballPos_horizontal <= vc[1]:
             return virtual_columns.index(vc)
 
-    print(pd.ballPos_horizontal)
+    print('unkown position, ball at: ', pd.ballPos_horizontal)
 
+     
             
 
 

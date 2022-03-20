@@ -10,7 +10,7 @@ private:
 	Vector2f c_position;
 	CircleShape circle;
 	Music* soundEffect;
-	float m_Speed = 1700.0f;
+	float m_Speed = 1900.0f;
 	bool toLeft = true;
 	bool toUp = false;
 	bool cameFromLeft = false;

@@ -9,7 +9,7 @@ discountRate = 0
 exploration_decay_rate = 0.0001   
 min_exploration_rate = 0.01
 max_exploration_rate = 1
-er = 1
+er = 1.0
 
 
 #Q Learning Algorithm
@@ -17,7 +17,7 @@ er = 1
 totalEpisodesRewards = 0
 
 for episode in range(numofEpisodes):
-    updateEpisodes(episode+1)
+    updateEpisodes(episode+1, er)
     resetGame()
     state = determineState()
     epRewards = 0
@@ -28,19 +28,16 @@ for episode in range(numofEpisodes):
         explorationRateThreshold = random.uniform(0,1)
         action = 0
         if explorationRateThreshold > er:
-            try:
-                #print('exploit')
-                updateActionStrategy('Exploit')
-                action = selectAction(QTable, False, state)     #exploit
-            except Exception as e:
-                print(e)
+            updateActionStrategy('Exploit')
+            action = selectAction(QTable, False, state)     #exploit
+
         else:
             updateActionStrategy('Explore')
-            #print('###explore')
             action = selectAction(QTable, True, state)      #explore
 
         #execute action and observe environment
         new_state, reward, gameover = performAction(action)
+        updateReward(actions_space[action[1]], reward)
 
         #update qtable
         QTable[state, action] = QTable[state, action] * (1 - learningRate) + learningRate * (reward + discountRate * np.max(QTable[new_state, :]))
@@ -53,7 +50,8 @@ for episode in range(numofEpisodes):
 
     er = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
     totalEpisodesRewards += epRewards
-    #print(er)
+    
+    #print();print();
     #print(QTable)
 
             

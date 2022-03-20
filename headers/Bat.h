@@ -7,7 +7,7 @@ class Bat
 private:
 	sf::Vector2f m_position;
 	sf::RectangleShape m_Shape;
-	float m_Speed = 2600.0f;
+	float m_Speed = 2900.0f;
 	bool m_MovingRight = false;
 	bool m_MovingLeft = false;
 	int startingX;

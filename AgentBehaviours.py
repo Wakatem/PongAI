@@ -11,20 +11,21 @@ def defineSpaces():
 
     #when game is not over AND sensor is off
     for columnID in range(10):
-        states_space.append((True, True, False, columnID, True))
-        states_space.append((True, True, False, columnID, False))
+        states_space.append((True, True, False, columnID, True))        #even indices
+        states_space.append((True, True, False, columnID, False))       #odd indices
     
     #when game is not over AND sensor is on
     for columnID in range(10):
-        states_space.append((True, True, True, columnID, True))
-        states_space.append((True, True, True, columnID, False))
+        states_space.append((True, True, True, columnID, True))         #even indices
+        states_space.append((True, True, True, columnID, False))        #odd indices
 
-    goal_state = (True, False, False, -1, True);   states_space.append(goal_state);
-    loss_state = (False, True, True, -1, True);   states_space.append(loss_state);
+    goal_state = (True, False, False, -1, True);   states_space.append(goal_state)
+    loss_state = (False, True, True, -1, True);   states_space.append(loss_state)
 
 
     #define actions space
-    actions_space = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"]
+    for i in range(10):
+        actions_space.append('C' + str(i+1))
 
 
 def determineState(inputs=()):
@@ -75,16 +76,20 @@ def selectAction(QTable, explore, state):
     if explore is True:
         return (True, random.randint(0,9)) #return explored action index
     else:
-        highest = 0;
-        index = 0;
-        print('state is', state)
-        arr = QTable[state,:]
+        highest = 0.0
+        ii = 0
+        arr = QTable[state,:].tolist()
         for j in arr:
-            if int(j) > highest:
-                highest = QTable[state, j]
-                index+=1
-           
-        return (False,  index) #return exploited action index
+            if j > highest:
+                highest = float(j)
+                ii = arr.index(float(j))
+            print('state is', state)
+            #print(states_space[ii])
+            #print(arr)
+            #print(ii)
+            #print();print();
+        
+        return (False,  ii) #return exploited action index
 
  
 def performAction(action):
@@ -92,16 +97,16 @@ def performAction(action):
     new_state = 0
     gameover = 0
 
-    if action[0] is False:
-        print(action)
     vColumn = virtual_columns[action[1]] # column to go to
+    #print('go to ', vColumn)
 
-    for ac in actual_columns:
-            if action[0] == True:
-                move(random.randint(vColumn[0], vColumn[1]))
-            else:
+    if action[0] == True:
+        move(random.randint(vColumn[0], vColumn[1]))
+    else:
+        ballPos = pd.ballPos_horizontal
+        for ac in actual_columns:
                 if vColumn[0] <= ac[0] and ac[1] <= vColumn[1]:
-                    if isColumnActivated(ac):
+                    if isColumnActivated(ac, ballPos):
                         move(ac[0])
                         break
     
@@ -124,6 +129,9 @@ def performAction(action):
 
 
     new_state = determineState((action, livesLeft, scoreLeft, sensorActivated, newColumn, ball_toUp))
+    #print('action was: go to', action[1]+1)
+    #print('new state is: ', states_space[new_state])
+    #print();print();
     gameover = pd.gameover
 
     return (new_state, reward, gameover)

@@ -24,12 +24,13 @@ RenderWindow window;
 bool gameStarted = false;
 bool scriptRunning = false;
 bool scriptStopped = true;
+bool closeGame = false;
 
 
 
 struct PongScreen
 {
-	Text scoreHud, livesHud, controls, target, gameStatus, gameoverText, episodesHud, strategyHud;
+	Text scoreHud, livesHud, controls, target, gameStatus, gameoverText, episodesHud, strategyHud, strategyResultHud, explorationRateHud;
 	Font font;
 	string gameStatuscontent;
 }ps;
@@ -53,7 +54,8 @@ struct PongDetails
 	bool gameover = false;
 	int episodes;
 	string strategy = "[Agent not online]";
-
+	string strategyResult;
+	float er;
 }pg;
 
 
@@ -62,12 +64,17 @@ void move(int startingX)
 	bat->moveTo(startingX);
 }
 
-void updateEpisodes(int ep)
+void updateEpisodes(int ep, float er)
 {
 	pg.episodes = ep;
 	std::stringstream epStream;
 	epStream << "     |       Episodes:   " << pg.episodes;
 	ps.episodesHud.setString(epStream.str());
+
+	pg.er = er;
+	std::stringstream ss;
+	ss << "     |   Exploration Rate:   " + std::to_string(pg.er);
+	ps.explorationRateHud.setString(ss.str());
 }
 
 void updateActionStrategy(string strategy)
@@ -76,6 +83,15 @@ void updateActionStrategy(string strategy)
 	std::stringstream stratStream;
 	stratStream << "     |   Strategy:    " << pg.strategy;
 	ps.strategyHud.setString(stratStream.str());
+ 
+}
+
+void updateReward(string action, int q)
+{
+	pg.strategyResult = "(" + action + ", " + std::to_string(q) + ")";
+	std::stringstream ss;
+	ss << "     |   Action,Reward:   " << pg.strategyResult;
+	ps.strategyResultHud.setString(ss.str());
 }
 
 void resetGame()
@@ -108,6 +124,7 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 	m.def("move", &move);
 	m.def("updateEpisodes", &updateEpisodes);
 	m.def("updateActionStrategy", &updateActionStrategy);
+	m.def("updateReward", &updateReward);
 	m.def("resetGame", &resetGame);
 
 }
@@ -190,6 +207,18 @@ void setScreenText(RenderWindow& window)
 	ps.strategyHud.setFillColor(Color::White);
 	ps.strategyHud.setPosition(585, 10);
 	ps.strategyHud.setString("     |   Strategy:   " + pg.strategy);
+
+	ps.strategyResultHud.setFont(ps.font);
+	ps.strategyResultHud.setCharacterSize(75);
+	ps.strategyResultHud.setFillColor(Color::White);
+	ps.strategyResultHud.setPosition(1055, 10);
+	ps.strategyResultHud.setString("     |   Action,Reward:        " + pg.strategyResult);
+
+	ps.explorationRateHud.setFont(ps.font);
+	ps.explorationRateHud.setCharacterSize(75);
+	ps.explorationRateHud.setFillColor(Color::White);
+	ps.explorationRateHud.setPosition(1435, 10);
+	ps.explorationRateHud.setString("     |   Exploration Rate:   " + std::to_string(pg.er));
 }
 
 
@@ -283,13 +312,17 @@ int main()
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::Closed)
+			{
+				pg.gameover = true;
+				closeGame = true;
 				window.close();
-
+			}
 		}
 
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
 		{
 			pg.gameover = true;
+			closeGame = true;
 			window.close();
 		}
 
@@ -319,6 +352,8 @@ int main()
 		window.draw(ps.livesHud);
 		window.draw(ps.episodesHud);
 		window.draw(ps.strategyHud);
+		window.draw(ps.strategyResultHud);
+		window.draw(ps.explorationRateHud);
 		window.draw(bat->getShape());
 		window.draw(ball->getShape());
 		window.display();
@@ -403,33 +438,39 @@ void pythonThread()
 {
 	bool errorThrown = false;
 
-	
 
 	do
 	{
-		if (scriptRunning)
+
+		if (!closeGame)
 		{
-			pg.strategy = "{Starting...}";
-			std::stringstream stratStream;
-			stratStream << "     |   Strategy:    " << pg.strategy;
-			ps.strategyHud.setString(stratStream.str());
+			if (scriptRunning)
+			{
+				pg.strategy = "{Starting...}";
+				std::stringstream stratStream;
+				stratStream << "     |   Strategy:    " << pg.strategy;
+				ps.strategyHud.setString(stratStream.str());
 
-			py::scoped_interpreter guard{};
-			//run script
-			py::module::import("Agent");
+				py::scoped_interpreter guard{};
+				//run script
+				py::module::import("Agent");
 
-			scriptRunning = false;
+				scriptRunning = false;
+			}
+			else
+			{
+				errorThrown = true;
+				scriptRunning = false;
+
+				pg.strategy = "[Agent not online]";
+				std::stringstream stratStream;
+				stratStream << "     |   Strategy:    " << pg.strategy;
+				ps.strategyHud.setString(stratStream.str());
+			}
 		}
+
 		else
-		{
-			errorThrown = true;
-			scriptRunning = false;
-
-			pg.strategy = "[Agent not online]";
-			std::stringstream stratStream;
-			stratStream << "     |   Strategy:    " << pg.strategy;
-			ps.strategyHud.setString(stratStream.str());
-		}
+			break;
 
 	} while (errorThrown || !scriptRunning);
 
