@@ -283,14 +283,14 @@ int main()
 	while ( (float)modes[i].width / modes[i].height != (float)16 / 9)	i++;
 
 	VideoMode vm = vm.getFullscreenModes()[i];
-	window.create(vm, "Pong Game", Style::Default);
+	window.create(vm, "Pong Game", Style::None | Style::Titlebar);
 	//window.setFramerateLimit(60);
 
 	Clock clock;
 	Music bgMusic;
 	bgMusic.openFromFile(".\\resources\\background_music.wav");
 	bgMusic.setLoop(true);
-	bgMusic.setVolume(0);
+	bgMusic.setVolume(25);
 	bgMusic.play();
 
 	ball = new Ball(window.getSize().x / 2 - 100, 10);
@@ -481,7 +481,10 @@ void pythonThread()
 
 				//run script
 				py::scoped_interpreter guard{};
-				py::module::import("Agent");
+				//py::module::import("from scripts import Agent");
+				py::exec("import sys");
+				py::exec("sys.path.insert(0, './scripts')");
+				py::exec("import Agent");
 				scriptRunning = false;
 
 			}

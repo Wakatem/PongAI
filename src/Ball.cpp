@@ -15,7 +15,7 @@ Ball::Ball(float startX, float startY) {
 	circle.setPosition(c_position);
 	soundEffect = new Music();
 	soundEffect->openFromFile(".\\resources\\hitSound.wav");
-	soundEffect->setVolume(0);
+	soundEffect->setVolume(30);
 }
 
 FloatRect Ball::getPosition()

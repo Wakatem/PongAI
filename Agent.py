@@ -3,6 +3,8 @@ from AgentBehaviours import *
 continueTraining = True
 importQTable = True
 
+
+
 if importQTable is True:
     QTable = readQTable()
     pass
@@ -13,8 +15,8 @@ else:
 if continueTraining is True:
     numofEpisodes, currentEp, er = readTraining();
 else:
-    numofEpisodes = 500
-    currentEp = 0
+    numofEpisodes = 10000
+    currentEp = 500
     er = 1
 
 learningRate = 1
@@ -29,7 +31,7 @@ max_exploration_rate = 1
 totalEpisodesRewards = 0
 
 try:
-    for episode in range(numofEpisodes):
+    while currentEp != numofEpisodes:
         updateEpisodes(currentEp+1, er)
         resetGame()
         state = determineState()    #state index
@@ -62,13 +64,15 @@ try:
     
             if pd.closeGame is True:
                 break
-        er = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
+        currentEp += 1
+        er = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*currentEp)
         totalEpisodesRewards += epRewards
         if pd.closeGame is True:
             writeQTable(QTable)
+            writeTraining((numofEpisodes, currentEp, er))
             break
         else:
-            if episode % 10 == 0:
+            if currentEp % 10 == 0:
                 writeQTable(QTable)
 
 except Exception as e:

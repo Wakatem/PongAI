@@ -35,6 +35,9 @@
     <ClInclude Include="headers\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.ico">
@@ -60,5 +63,10 @@
     </None>
     <None Include="AgentHelper.py" />
     <None Include="AgentBehaviours.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PongAI.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

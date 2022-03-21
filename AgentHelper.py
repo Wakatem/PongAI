@@ -120,7 +120,12 @@ def readTraining():
     return (numofEpisodes, currentEp, er)
 
 def writeTraining(trainingData):
-    np.savetxt('training.txt', trainingData, delimiter=',')
+    training = open('training.txt', 'w')
+    for data in trainingData:
+        training.write(str(data))
+        training.write('\n')
+    training.close()
+    pass
 
 def writeQTable(QTable):
     np.savetxt('qtable.txt', QTable, delimiter=',')
