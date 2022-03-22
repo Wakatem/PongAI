@@ -75,12 +75,12 @@ void updateEpisodes(int ep, float er)
 {
 	pg.episodes = ep;
 	std::stringstream epStream;
-	epStream << "     |       Episodes:   " << pg.episodes;
+	epStream << "                   Episodes:  " << pg.episodes;
 	ps.episodesHud.setString(epStream.str());
 
 	pg.er = er;
 	std::stringstream ss;
-	ss << "     |   Exploration Rate:   " + std::to_string(pg.er);
+	ss << "   |    Exploration Rate:   " + std::to_string(pg.er);
 	ps.explorationRateHud.setString(ss.str());
 }
 
@@ -97,7 +97,7 @@ void updateReward(string action, int q)
 {
 	pg.strategyResult = "(" + action + ", " + std::to_string(q) + ")";
 	std::stringstream ss;
-	ss << "     |   Action,Reward:   " << pg.strategyResult;
+	ss << "          Action,Reward:   " << pg.strategyResult;
 	ps.strategyResultHud.setString(ss.str());
 }
 
@@ -188,7 +188,7 @@ void setScreenText(RenderWindow& window)
 	ps.controls.setCharacterSize(45);
 	ps.controls.setFillColor(Color::White);
 	ps.controls.setPosition(25, 3);
-	ps.controls.setString("'esc' :  Quit                       |      'R' :  Restart                                                                          |      'P' : Wake Agent Up");
+	ps.controls.setString("'esc' :  Quit                       |      'R' :  Restart                                                                                       |      'P' : Wake Agent Up");
 
 	ps.target.setFont(ps.font);
 	ps.target.setCharacterSize(45);
@@ -212,25 +212,25 @@ void setScreenText(RenderWindow& window)
 	ps.episodesHud.setCharacterSize(75);
 	ps.episodesHud.setFillColor(Color::White);
 	ps.episodesHud.setPosition(315, 10);
-	ps.episodesHud.setString("     |           Episodes:   " + std::to_string(pg.episodes));
+	ps.episodesHud.setString("                   Episodes:  " + std::to_string(pg.episodes));
 
 	ps.strategyHud.setFont(ps.font);
 	ps.strategyHud.setCharacterSize(75);
 	ps.strategyHud.setFillColor(Color::White);
-	ps.strategyHud.setPosition(585, 10);
+	ps.strategyHud.setPosition(635, 10);
 	ps.strategyHud.setString("     |   Strategy:   " + pg.strategy);
 
 	ps.strategyResultHud.setFont(ps.font);
 	ps.strategyResultHud.setCharacterSize(75);
 	ps.strategyResultHud.setFillColor(Color::White);
 	ps.strategyResultHud.setPosition(1055, 10);
-	ps.strategyResultHud.setString("     |   Action,Reward:        " + pg.strategyResult);
+	ps.strategyResultHud.setString("          Action,Reward:   " + pg.strategyResult);
 
 	ps.explorationRateHud.setFont(ps.font);
 	ps.explorationRateHud.setCharacterSize(75);
 	ps.explorationRateHud.setFillColor(Color::White);
 	ps.explorationRateHud.setPosition(1435, 10);
-	ps.explorationRateHud.setString("     |   Exploration Rate:   " + std::to_string(pg.er));
+	ps.explorationRateHud.setString("   |    Exploration Rate:   " + std::to_string(pg.er));
 }
 
 
