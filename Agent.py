@@ -19,8 +19,8 @@ else:
     currentEp = 500
     er = 1
 
-learningRate = 1
-discountRate = 0
+learningRate = 0.95
+discountRate = 0.05
 exploration_decay_rate = 0.001   
 min_exploration_rate = 0.01
 max_exploration_rate = 1
@@ -64,7 +64,7 @@ try:
     
             if pd.closeGame is True:
                 break
-        currentEp += 1
+        
         er = min_exploration_rate + (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*currentEp)
         totalEpisodesRewards += epRewards
         if pd.closeGame is True:
@@ -74,6 +74,7 @@ try:
         else:
             if currentEp % 10 == 0:
                 writeQTable(QTable)
+        currentEp += 1
 
 except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

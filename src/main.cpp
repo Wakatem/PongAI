@@ -294,7 +294,7 @@ int main()
 	bgMusic.play();
 
 	ball = Ball(window.getSize().x / 2 - 100, 10);
-	bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 100);
 
 
 	//Update pong details

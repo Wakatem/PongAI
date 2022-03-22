@@ -9,7 +9,7 @@ class Ball
 private:
 	Vector2f c_position;
 	CircleShape circle;
-	float m_Speed = 500.0f;
+	float m_Speed = 1600.0f;
 	bool toLeft = true;
 	bool toUp = false;
 	bool cameFromLeft = false;
