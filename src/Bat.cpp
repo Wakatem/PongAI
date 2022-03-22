@@ -14,7 +14,7 @@ Bat::Bat(float startX, float startY) {
 	m_position.y = startY;
 	m_Shape.setSize(sf::Vector2f(150, 5));
 	m_Shape.setPosition(m_position);
-	startingX = startX;
+	startingX = (unsigned int) startX;
 }
 
 sf::FloatRect Bat::getPosition()
@@ -60,8 +60,8 @@ void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 
 
 		m_Shape.setFillColor(color);
-		int startingPoint = (int)this->getPosition().left;
-		int endingPoint = (int)this->getPosition().left + (int)this->getPosition().width;
+		unsigned int startingPoint = (int)this->getPosition().left;
+		unsigned int endingPoint = (int)this->getPosition().left + (int)this->getPosition().width;
 
 
 
