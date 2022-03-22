@@ -10,10 +10,9 @@ private:
 	float m_Speed = 2900.0f;
 	bool m_MovingRight = false;
 	bool m_MovingLeft = false;
-	int startingX;
-	int endingX;
+	unsigned int startingX;
+	unsigned int endingX;
 	bool agentPlaying = false;
-	float calcPos = 0.0;
 	bool positionUpdated = false;
 public:
 	Bat();

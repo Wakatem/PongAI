@@ -17,8 +17,8 @@ using std::string;
 using std::vector;
 namespace py = pybind11;
 
-Bat* bat;
-Ball* ball;
+Bat bat;
+Ball ball;
 RenderWindow window;
 
 bool scriptRunning = false;
@@ -38,17 +38,17 @@ struct PongScreen
 
 struct PongDetails 
 {
-	int lives = 5;
+	short lives = 5;
 	int score = 0;
-	int scoreTarget = 10000;
+	unsigned int scoreTarget = 10000;
 	bool addScore;
 	bool loseLive;
 	float windowX;
 	float windowY;
 	float batWidth;
-	float batY;					//y value of bat
-	int ballPos_vertical;		//ball boundraies (for vertical comparison)
-	int ballPos_horizontal;		//ball boundraies (for horizontal comparison)
+	float batY;								//y value of bat
+	unsigned int ballPos_vertical;			//ball boundraies (for vertical comparison)
+	unsigned int ballPos_horizontal;		//ball boundraies (for horizontal comparison)
 	bool ball_toUp = false;
 	bool ball_toLeft = true;
 	bool ballIsBackUp;			
@@ -63,7 +63,7 @@ struct PongDetails
 
 void move(int startingX)
 {
-	bat->moveTo(startingX);
+	bat.moveTo(startingX);
 }
 
 void updateIfBallIsBackUp(bool ballIsUp)
@@ -106,8 +106,8 @@ void resetGame()
 	//game restarts
 	pg.gameover = false;
 	gameStarted = true;
-	ball->resetBall(window.getSize().x / 2 / 2, 10);
-	bat->resetBat(window.getSize().x / 2 - 100);
+	ball.resetBall(window.getSize().x / 2 / 2, 10);
+	bat.resetBat(window.getSize().x / 2 - 100);
 	pg.lives = 5;
 	pg.score = 0;
 }
@@ -285,7 +285,7 @@ int main()
 	VideoMode vm = vm.getFullscreenModes()[i];
 	window.create(vm, "Pong Game", Style::None | Style::Titlebar);
 	//window.setFramerateLimit(60);
-
+	
 	Clock clock;
 	Music bgMusic;
 	bgMusic.openFromFile(".\\resources\\background_music.wav");
@@ -293,15 +293,15 @@ int main()
 	bgMusic.setVolume(25);
 	bgMusic.play();
 
-	ball = new Ball(window.getSize().x / 2 - 100, 10);
-	bat = new Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
+	ball = Ball(window.getSize().x / 2 - 100, 10);
+	bat = Bat(window.getSize().x / 2 - 100, window.getSize().y - 300);
 
 
 	//Update pong details
 	pg.windowX = window.getSize().x;
 	pg.windowY = window.getSize().y;
-	pg.batWidth = bat->getPosition().width;
-	pg.batY = bat->getPosition().top;
+	pg.batWidth = bat.getPosition().width;
+	pg.batY = bat.getPosition().top;
 
 	ps.font.loadFromFile(".\\resources\\game_over.ttf");
 	pg.addScore = false;
@@ -312,7 +312,7 @@ int main()
 	//run python script here
 	thread pythonThread_t(pythonThread);
 
-	thread updateGameValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(*bat), std::ref(*ball));
+	thread updateGameValues_t(updateGameValues, std::ref(window), std::ref(clock), std::ref(bat), std::ref(ball));
 
 
 	while (window.isOpen())
@@ -348,12 +348,12 @@ int main()
 			scriptRunning = true;
 		}
 
-		if (Keyboard::isKeyPressed(Keyboard::Left))    bat->moveLeft();
-		else                                           bat->stopLeft();
+		if (Keyboard::isKeyPressed(Keyboard::Left))    bat.moveLeft();
+		else                                           bat.stopLeft();
 
 
-		if (Keyboard::isKeyPressed(Keyboard::Right))   bat->moveRight();
-		else                                           bat->stopRight();
+		if (Keyboard::isKeyPressed(Keyboard::Right))   bat.moveRight();
+		else                                           bat.stopRight();
 		
 		//when game ends
 		if (pg.lives == 0 || pg.score > pg.scoreTarget)
@@ -372,17 +372,16 @@ int main()
 		window.draw(ps.strategyHud);
 		window.draw(ps.strategyResultHud);
 		window.draw(ps.explorationRateHud);
-		window.draw(bat->getShape());
-		window.draw(ball->getShape());
+		window.draw(bat.getShape());
+		window.draw(ball.getShape());
 		window.display();
 	}
 
 	pythonThread_t.join();
 	updateGameValues_t.join();
+	delete ball.soundEffect;
 
-	delete bat;
-	delete ball;
-	return 0;
+
 }
 
 
@@ -396,18 +395,18 @@ void updateGameValues(RenderWindow& window, Clock& clock, Bat& bat, Ball& ball)
 		Time dt = clock.restart();
 
 		//update ball frames
-		int value = ball.update(dt, window, bat);
+		short value = ball.update(dt, window, bat);
 
 		if (ball.getPosition().left + ball.getPosition().width < 0)
 			pg.ballPos_horizontal = 0;
 
 		else if (ball.getPosition().left + ball.getPosition().width > window.getSize().x)
-			pg.ballPos_horizontal = (int)window.getSize().x;
+			pg.ballPos_horizontal = (unsigned int)window.getSize().x;
 		else
-			pg.ballPos_horizontal = (int)(ball.getPosition().left + ball.getPosition().width);
+			pg.ballPos_horizontal = (unsigned int)(ball.getPosition().left + ball.getPosition().width);
 		
 
-		pg.ballPos_vertical = (int) (ball.getPosition().top + ball.getPosition().height);
+		pg.ballPos_vertical = (unsigned int) (ball.getPosition().top + ball.getPosition().height);
 		pg.ball_toUp = ball.isBalltoUp();
 		pg.ball_toLeft = ball.isBalltoLeft();
 

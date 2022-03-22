@@ -18,6 +18,7 @@ Ball::Ball(float startX, float startY) {
 	soundEffect->setVolume(30);
 }
 
+
 FloatRect Ball::getPosition()
 {
 	return circle.getGlobalBounds();

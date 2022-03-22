@@ -9,13 +9,12 @@ class Ball
 private:
 	Vector2f c_position;
 	CircleShape circle;
-	Music* soundEffect;
 	float m_Speed = 1900.0f;
 	bool toLeft = true;
 	bool toUp = false;
 	bool cameFromLeft = false;
 	bool cameFromTop = true;
-	int collisionStatus = 0;
+	short collisionStatus = 0;
 public:
 	Ball();
 	Ball(float startX, float startY);
@@ -27,4 +26,5 @@ public:
 	bool isBalltoUp();
 	bool isBalltoLeft();
 	void resetBall(float startX, float startY);
+	Music* soundEffect;
 };

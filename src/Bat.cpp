@@ -54,6 +54,7 @@ void Bat::stopRight()
 
 void Bat::update(sf::Time dt, sf::RenderWindow& window, sf::Color color)
 {
+	float calcPos = 0.0;
 	if (agentPlaying)
 	{
 
