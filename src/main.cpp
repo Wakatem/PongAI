@@ -57,7 +57,8 @@ struct PongDetails
 	string strategy = "[Agent not online]";
 	string strategyResult;
 	float er;
-	bool closeGame = false;
+	bool closeGame = false;					//needed threads management
+	bool continueTraining = true;
 }pg;
 
 
@@ -129,7 +130,9 @@ PYBIND11_EMBEDDED_MODULE(PongGame, m) {
 		.def_readonly_static("ball_toUp", &pg.ball_toUp)
 		.def_readonly_static("ball_toLeft", &pg.ball_toLeft)
 		.def_readonly_static("gameover", &pg.gameover)
-		.def_readonly_static("closeGame", &pg.closeGame);
+		.def_readonly_static("closeGame", &pg.closeGame)
+		.def_readonly_static("gameover", &pg.gameover)
+		.def_readonly_static("continueTraining", &pg.continueTraining);
 
 	m.def("move", &move);
 	m.def("updateEpisodes", &updateEpisodes);
@@ -346,6 +349,16 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::P))
 		{
 			scriptRunning = true;
+		}
+
+		if (Keyboard::isKeyPressed(Keyboard::N))
+		{
+			pg.continueTraining = false;
+		}
+
+		if (Keyboard::isKeyPressed(Keyboard::M))
+		{
+			pg.continueTraining = true;
 		}
 
 		if (Keyboard::isKeyPressed(Keyboard::Left))    bat.moveLeft();
