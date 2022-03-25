@@ -15,8 +15,8 @@
 using std::thread;
 using std::string;
 using std::vector;
-namespace py = pybind11;
-
+//namespace py = pybind11;
+//typedef py = pybind11;
 Bat bat;
 Ball ball;
 RenderWindow window;
